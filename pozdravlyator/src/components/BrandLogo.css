@@ -1,0 +1,70 @@
+/* Айдентика: логотип + слово «Поздравлятор 2000» в ДНК дизайна (Syne, стекло, акцент) */
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-m);
+}
+
+.brand-logo--hero {
+  gap: var(--space-l);
+}
+
+.brand-logo--compact {
+  gap: var(--space-s);
+}
+
+.brand-logo--compact .brand-logo__img {
+  width: 28px;
+  height: 28px;
+}
+
+.brand-logo--compact .brand-logo__title {
+  font-size: 1.1rem;
+}
+
+.brand-logo--inline {
+  gap: var(--space-s);
+}
+
+.brand-logo--inline .brand-logo__img {
+  width: 20px;
+  height: 20px;
+}
+
+.brand-logo--inline .brand-logo__title {
+  font-size: 0.95rem;
+}
+
+.brand-logo__mark {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-primary);
+}
+
+.brand-logo__img {
+  width: 48px;
+  height: 48px;
+  display: block;
+  object-fit: contain;
+}
+
+.brand-logo--hero .brand-logo__img {
+  width: 56px;
+  height: 56px;
+}
+
+.brand-logo__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.75rem, 5.5vw, 3rem);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.brand-logo--hero .brand-logo__title {
+  font-size: clamp(1.85rem, 6vw, 3.25rem);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}

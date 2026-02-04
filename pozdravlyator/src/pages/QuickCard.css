@@ -1,0 +1,109 @@
+.quick-card {
+  padding-bottom: calc(60px + var(--space-2xl));
+}
+
+.quick-card__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-l);
+}
+
+.quick-card__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.quick-card__textarea.input-group .input-group__textarea {
+  width: 100%;
+  min-height: 80px;
+}
+
+.quick-card__hint {
+  margin: var(--space-xs) 0 0 0;
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.quick-card__preview-wrap {
+  margin-top: var(--space-s);
+}
+
+.quick-card__preview-label {
+  margin: 0 0 var(--space-s) 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.quick-card__preview {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 9 / 16;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-subtle);
+}
+
+.quick-card__preview-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.quick-card__preview-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.quick-card__preview-text {
+  position: absolute;
+  inset: var(--space-m);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: clamp(0.9rem, 4vw, 1.2rem);
+  font-weight: 600;
+  color: #fff;
+  white-space: pre-wrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.quick-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  align-items: center;
+}
+
+.quick-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.quick-card__share {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-m);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-primary-muted);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.quick-card__share:hover {
+  background: rgba(var(--color-primary-rgb), 0.2);
+  border-color: var(--color-primary);
+}

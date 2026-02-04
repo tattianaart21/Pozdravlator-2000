@@ -1,0 +1,15 @@
+# Секреты (ключи API, Supabase) — не коммитить
+.env
+.env.local
+.env.*.local
+
+# Зависимости и сборка
+node_modules/
+dist/
+
+# Локальные данные Supabase CLI
+supabase/.temp/
+
+# Системное и редакторы
+.DS_Store
+*.log

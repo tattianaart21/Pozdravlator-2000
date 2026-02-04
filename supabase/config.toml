@@ -1,0 +1,9 @@
+# Конфигурация Supabase (Edge Functions).
+# Деплой: из корня проекта — supabase functions deploy generate-congratulation && supabase functions deploy suggest-gifts
+
+# Разрешить вызов без проверки JWT (anon key достаточен). Иначе с сайта приходит 401 Unauthorized.
+[functions.generate-congratulation]
+verify_jwt = false
+
+[functions.suggest-gifts]
+verify_jwt = false

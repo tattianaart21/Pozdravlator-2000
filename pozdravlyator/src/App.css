@@ -1,0 +1,16 @@
+/* Высота верхней шапки (тема, email, выход) — используется для отступа контента */
+.app__main {
+  min-height: 100vh;
+  padding: var(--space-m);
+  padding-top: calc(var(--header-height, 56px) + var(--space-m));
+  padding-bottom: calc(70px + var(--space-l));
+}
+
+@media (min-width: 768px) {
+  .app__main {
+    padding-top: calc(var(--header-height, 56px) + var(--space-m));
+    padding-bottom: var(--space-l);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+}

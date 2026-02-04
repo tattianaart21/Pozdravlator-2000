@@ -1,0 +1,35 @@
+.share-buttons {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  align-items: center;
+}
+
+.share-buttons__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-s) var(--space-m);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: var(--color-primary-muted);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.share-buttons__link:hover {
+  background: rgba(var(--color-primary-rgb), 0.2);
+  border-color: var(--color-primary);
+}
+
+.share-buttons__link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.share-buttons__link svg {
+  flex-shrink: 0;
+}

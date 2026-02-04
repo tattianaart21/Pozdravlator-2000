@@ -1,0 +1,31 @@
+/* Карточка — реалистичное стекло с фрост-эффектом, едва заметные границы, слоистость */
+.card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--frost-blur));
+  -webkit-backdrop-filter: blur(var(--frost-blur));
+  border-radius: var(--radius-lg);
+  padding: var(--space-m);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.card--clickable {
+  cursor: pointer;
+}
+
+.card--clickable:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.35);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.card--clickable:active {
+  transform: translateY(0);
+}
+
+.card--highlight {
+  border-color: rgba(var(--color-primary-rgb), 0.4);
+  background: var(--color-primary-muted);
+  box-shadow: 0 4px 20px rgba(var(--color-primary-rgb), 0.15);
+}

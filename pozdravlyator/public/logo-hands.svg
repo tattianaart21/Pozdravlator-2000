@@ -1,0 +1,26 @@
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="circle-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef9e7" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#e8f4fc" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5d0c4"/>
+      <stop offset="100%" stop-color="#e8b4a0"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a8acb4"/>
+      <stop offset="50%" stop-color="#e0e4e8"/>
+      <stop offset="100%" stop-color="#9098a0"/>
+    </linearGradient>
+  </defs>
+  <!-- ????; ??? ??????? ?????????? -->
+  <circle cx="60" cy="60" r="52" fill="url(#circle-grad)"/>
+  <!-- ???????????? ???? (?????): ?????? + ????????? ????? ? ?????? -->
+  <path d="M24 58 Q28 50 32 52 Q36 54 38 58 Q40 62 38 68 L32 72 Q28 70 26 64 Z" fill="url(#skin)" stroke="#d4a090" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M38 58 L54 52 L58 50" stroke="#d4a090" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <!-- ???? ?????? (??????): ?????? + ????? ? ?????? -->
+  <path d="M96 58 Q92 50 88 52 Q84 54 82 58 Q80 62 82 68 L88 72 Q92 70 94 64 Z" fill="url(#metal)" stroke="#707880" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M82 58 L66 52 L62 50" stroke="#707880" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <circle cx="90" cy="54" r="2" fill="#60a5fa" opacity="0.9"/>
+</svg>

@@ -1,0 +1,47 @@
+.challenges {
+  padding-bottom: calc(60px + var(--space-2xl));
+}
+
+.challenges__title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-s);
+}
+
+.challenges__title svg {
+  color: var(--color-primary);
+}
+
+.challenges__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.challenges__card {
+  padding: var(--space-l);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.challenges__card--glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--frost-blur));
+  -webkit-backdrop-filter: blur(var(--frost-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.challenges__card-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.challenges__card-text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}

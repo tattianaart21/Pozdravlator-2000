@@ -1,0 +1,311 @@
+/* 2026: сдержанная палитра, чёткая типографика, мягкие тени */
+
+.standalone {
+  --standalone-bg: #f8f7f4;
+  --standalone-surface: #ffffff;
+  --standalone-border: rgba(0, 0, 0, 0.06);
+  --standalone-text: #1a1a1a;
+  --standalone-text-muted: #5c5c5c;
+  --standalone-accent: #2563eb;
+  --standalone-accent-hover: #1d4ed8;
+  --standalone-radius: 16px;
+  --standalone-radius-sm: 10px;
+  --standalone-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --standalone-shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.06);
+  min-height: 100vh;
+  background: var(--standalone-bg);
+  padding: clamp(20px, 5vw, 40px);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--standalone-text);
+  line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  .standalone {
+    --standalone-bg: #0f0f0f;
+    --standalone-surface: #1a1a1a;
+    --standalone-border: rgba(255, 255, 255, 0.08);
+    --standalone-text: #f4f4f4;
+    --standalone-text-muted: #a1a1a1;
+    --standalone-accent: #3b82f6;
+    --standalone-accent-hover: #60a5fa;
+  }
+}
+
+.standalone__header {
+  text-align: center;
+  margin-bottom: clamp(32px, 6vw, 48px);
+}
+
+.standalone__title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px 0;
+  color: var(--standalone-text);
+}
+
+.standalone__subtitle {
+  font-size: 1rem;
+  color: var(--standalone-text-muted);
+  margin: 0;
+  font-weight: 400;
+}
+
+.standalone__grid {
+  display: grid;
+  gap: 24px;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+@media (min-width: 720px) {
+  .standalone__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.standalone__card {
+  background: var(--standalone-surface);
+  border-radius: var(--standalone-radius);
+  border: 1px solid var(--standalone-border);
+  box-shadow: var(--standalone-shadow);
+  padding: 28px 24px;
+  transition: box-shadow 0.2s ease;
+}
+
+.standalone__card:hover {
+  box-shadow: var(--standalone-shadow-lg);
+}
+
+.standalone__form-card {
+  min-width: 0;
+}
+
+.standalone__contacts-card {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.standalone__card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 20px 0;
+  color: var(--standalone-text);
+}
+
+.standalone__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.standalone__label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.standalone__label-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--standalone-text-muted);
+}
+
+.standalone__input,
+.standalone__select {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 1rem;
+  border: 1px solid var(--standalone-border);
+  border-radius: var(--standalone-radius-sm);
+  background: var(--standalone-bg);
+  color: var(--standalone-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.standalone__input::placeholder,
+.standalone__textarea::placeholder {
+  color: var(--standalone-text-muted);
+  opacity: 0.8;
+}
+
+.standalone__input:focus,
+.standalone__select:focus {
+  outline: none;
+  border-color: var(--standalone-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.standalone__textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+.standalone__select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%235c5c5c' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+.standalone__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--standalone-radius-sm);
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+  min-height: 48px;
+}
+
+.standalone__btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.standalone__btn:active {
+  transform: scale(0.99);
+}
+
+.standalone__btn--primary {
+  background: var(--standalone-accent);
+  color: #fff;
+  margin-top: 4px;
+}
+
+.standalone__btn--primary:hover {
+  background: var(--standalone-accent-hover);
+}
+
+.standalone__btn--secondary {
+  background: var(--standalone-bg);
+  color: var(--standalone-text);
+  border: 1px solid var(--standalone-border);
+  font-weight: 500;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.standalone__btn--secondary:hover {
+  background: var(--standalone-border);
+}
+
+.standalone__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.standalone__contact {
+  background: var(--standalone-bg);
+  border: 1px solid var(--standalone-border);
+  border-radius: var(--standalone-radius-sm);
+  padding: 18px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.standalone__contact:hover {
+  border-color: rgba(37, 99, 235, 0.2);
+  box-shadow: var(--standalone-shadow);
+}
+
+.standalone__contact-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.standalone__contact-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--standalone-text);
+}
+
+.standalone__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: capitalize;
+}
+
+.standalone__badge--тёплый {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.standalone__badge--ироничный {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.standalone__badge--официальный {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.standalone__badge--эпичный {
+  background: #fce7f3;
+  color: #9d174d;
+}
+
+@media (prefers-color-scheme: dark) {
+  .standalone__badge--тёплый {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fcd34d;
+  }
+  .standalone__badge--ироничный {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+  }
+  .standalone__badge--официальный {
+    background: rgba(156, 163, 175, 0.2);
+    color: #d1d5db;
+  }
+  .standalone__badge--эпичный {
+    background: rgba(236, 72, 153, 0.2);
+    color: #f9a8d4;
+  }
+}
+
+.standalone__contact-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+}
+
+.standalone__contact-dl dt {
+  margin: 0;
+  color: var(--standalone-text-muted);
+  font-weight: 500;
+}
+
+.standalone__contact-dl dd {
+  margin: 0;
+  color: var(--standalone-text);
+}
+
+.standalone__contact-hobbies {
+  margin: 0 0 12px 0;
+  font-size: 0.9rem;
+  color: var(--standalone-text-muted);
+  line-height: 1.45;
+}

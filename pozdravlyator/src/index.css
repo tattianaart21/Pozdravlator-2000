@@ -1,0 +1,210 @@
+/* Поздравлятор 2000 — стекло с фрост-эффектом, неоморфизм, динамическая палитра */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap');
+
+:root {
+  --space-xs: 4px;
+  --space-s: 8px;
+  --space-m: 16px;
+  --space-l: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --header-height: 56px;
+  --transition: 0.25s ease;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Syne', var(--font-sans);
+  --frost-blur: 12px;
+  --glass-border-opacity: 0.12;
+  --glass-bg-opacity: 0.65;
+  --neo-shadow: 6px 6px 14px rgba(0, 0, 0, 0.08), -6px -6px 14px rgba(255, 255, 255, 0.6);
+  --neo-shadow-dark: 6px 6px 14px rgba(0, 0, 0, 0.35), -2px -2px 8px rgba(255, 255, 255, 0.04);
+}
+
+/* Палитры — акцент по времени суток / выбор пользователя */
+[data-palette="dawn"] {
+  --color-primary: #e07c3c;
+  --color-primary-rgb: 224, 124, 60;
+  --color-primary-muted: rgba(224, 124, 60, 0.18);
+}
+[data-palette="day"] {
+  --color-primary: #0ea5e9;
+  --color-primary-rgb: 14, 165, 233;
+  --color-primary-muted: rgba(14, 165, 233, 0.18);
+}
+[data-palette="dusk"] {
+  --color-primary: #f97316;
+  --color-primary-rgb: 249, 115, 22;
+  --color-primary-muted: rgba(249, 115, 22, 0.18);
+}
+[data-palette="night"] {
+  --color-primary: #8b5cf6;
+  --color-primary-rgb: 139, 92, 246;
+  --color-primary-muted: rgba(139, 92, 246, 0.2);
+}
+[data-palette="forest"] {
+  --color-primary: #059669;
+  --color-primary-rgb: 5, 150, 105;
+  --color-primary-muted: rgba(5, 150, 105, 0.18);
+}
+[data-palette="ocean"] {
+  --color-primary: #0891b2;
+  --color-primary-rgb: 8, 145, 178;
+  --color-primary-muted: rgba(8, 145, 178, 0.18);
+}
+
+/* Дефолт палитры если не задана */
+:root:not([data-palette]) {
+  --color-primary: #6366f1;
+  --color-primary-rgb: 99, 102, 241;
+  --color-primary-muted: rgba(99, 102, 241, 0.18);
+}
+
+/* Светлая тема — стекло и фон */
+[data-theme="light"] {
+  --color-bg: #e8ecf1;
+  --color-bg-subtle: #dde2e8;
+  --color-surface: rgba(255, 255, 255, 0.72);
+  --color-text: #1a1d24;
+  --color-text-secondary: #5c6370;
+  --color-border: rgba(255, 255, 255, 0.5);
+  --color-border-strong: rgba(0, 0, 0, 0.08);
+  --color-error: #dc2626;
+  --glass-bg: rgba(255, 255, 255, var(--glass-bg-opacity));
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.1);
+  --neo: var(--neo-shadow);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f1116;
+  --color-bg-subtle: #161a22;
+  --color-surface: rgba(22, 26, 34, 0.85);
+  --color-text: #f0f2f5;
+  --color-text-secondary: #9ca3b4;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.1);
+  --color-error: #f87171;
+  --glass-bg: rgba(30, 35, 45, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+  --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --neo: var(--neo-shadow-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg: #0f1116;
+    --color-bg-subtle: #161a22;
+    --color-surface: rgba(22, 26, 34, 0.85);
+    --color-text: #f0f2f5;
+    --color-text-secondary: #9ca3b4;
+    --color-border: rgba(255, 255, 255, 0.06);
+    --glass-bg: rgba(30, 35, 45, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+    --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.4);
+    --neo: var(--neo-shadow-dark);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Праздничный динамичный фон (включается в профиле) */
+[data-background="on"] body {
+  background-color: var(--color-bg);
+  background-image:
+    radial-gradient(ellipse 140% 80% at 80% 20%, rgba(var(--color-primary-rgb), 0.18), transparent 50%),
+    radial-gradient(ellipse 120% 70% at 10% 80%, rgba(var(--color-primary-rgb), 0.14), transparent 50%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, var(--color-bg-subtle), transparent 70%);
+  background-size: 220% 220%, 200% 200%, 100% 100%;
+  background-position: 0% 0%, 100% 100%, 50% 50%;
+  animation: bgFestive 18s ease-in-out infinite;
+}
+
+[data-background="on"][data-theme="dark"] body {
+  background-image:
+    radial-gradient(ellipse 140% 80% at 80% 20%, rgba(var(--color-primary-rgb), 0.22), transparent 50%),
+    radial-gradient(ellipse 120% 70% at 10% 80%, rgba(var(--color-primary-rgb), 0.18), transparent 50%),
+    radial-gradient(ellipse 100% 100% at 50% 50%, var(--color-bg-subtle), transparent 70%);
+  background-size: 220% 220%, 200% 200%, 100% 100%;
+  background-position: 0% 0%, 100% 100%, 50% 50%;
+  animation: bgFestive 18s ease-in-out infinite;
+}
+
+@keyframes bgFestive {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%;
+  }
+  33% {
+    background-position: 100% 30%, 0% 70%, 50% 50%;
+  }
+  66% {
+    background-position: 30% 100%, 70% 0%, 50% 50%;
+  }
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Типографика */
+.page__title {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.page__subtitle {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.page__header {
+  margin-bottom: var(--space-l);
+}
+
+.page {
+  max-width: 100%;
+  animation: pageIn 0.35s ease;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes copyFlash {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+select.input-group__input {
+  appearance: auto;
+  cursor: pointer;
+}
