@@ -28,17 +28,11 @@ export function Landing() {
 
       <div className="landing__grid" aria-hidden="true">
         <span className="landing__grid-annot landing__grid-annot--1">ДАТЫ</span>
-        <span className="landing__grid-annot landing__grid-annot--2">ДОСЬЕ</span>
         <span className="landing__grid-annot landing__grid-annot--3">ИИ</span>
         <span className="landing__grid-annot landing__grid-annot--4">КАЛЕНДАРЬ</span>
         <span className="landing__grid-annot landing__grid-annot--5">ПОВОД</span>
-        <span className="landing__grid-annot landing__grid-annot--6">ТЕКСТ</span>
         <span className="landing__grid-annot landing__grid-annot--7">НАПОМИНАНИЯ</span>
-        <span className="landing__grid-annot landing__grid-annot--8">КОНТАКТЫ</span>
-        <span className="landing__grid-annot landing__grid-annot--9">ТОН</span>
         <span className="landing__grid-annot landing__grid-annot--10">ПОЗДРАВЛЕНИЯ</span>
-        <span className="landing__grid-annot landing__grid-annot--11">ДР</span>
-        <span className="landing__grid-annot landing__grid-annot--12">ПЕРСОНАЛЬНО</span>
       </div>
 
       <header className="landing__hero">
