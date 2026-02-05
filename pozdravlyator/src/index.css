@@ -130,10 +130,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Праздничный динамичный фон (включается в профиле). На мобильных — фиксируем высоту и дублируем на html для Safari. */
+/* Праздничный динамичный фон (включается в профиле) */
 [data-background="on"] body {
-  min-height: 100vh;
-  min-height: 100dvh;
   background-color: var(--color-bg);
   background-image:
     radial-gradient(ellipse 140% 80% at 80% 20%, rgba(var(--color-primary-rgb), 0.18), transparent 50%),
@@ -141,14 +139,7 @@ body {
     radial-gradient(ellipse 100% 100% at 50% 50%, var(--color-bg-subtle), transparent 70%);
   background-size: 220% 220%, 200% 200%, 100% 100%;
   background-position: 0% 0%, 100% 100%, 50% 50%;
-  background-attachment: scroll;
   animation: bgFestive 18s ease-in-out infinite;
-  -webkit-animation: bgFestive 18s ease-in-out infinite;
-}
-
-[data-background="on"] html {
-  min-height: 100%;
-  background-color: var(--color-bg);
 }
 
 [data-background="on"][data-theme="dark"] body {
@@ -159,7 +150,6 @@ body {
   background-size: 220% 220%, 200% 200%, 100% 100%;
   background-position: 0% 0%, 100% 100%, 50% 50%;
   animation: bgFestive 18s ease-in-out infinite;
-  -webkit-animation: bgFestive 18s ease-in-out infinite;
 }
 
 @keyframes bgFestive {

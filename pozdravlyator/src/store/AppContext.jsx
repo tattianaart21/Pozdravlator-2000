@@ -1,13 +1,7 @@
-import { createContext, useContext, useCallback, useState, useEffect, useRef } from 'react';
+import { createContext, useContext, useCallback, useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from './AuthContext';
 import { loadContactsWithFallback, saveContacts, loadCongratulationsWithFallback, saveCongratulations } from '../services/storage';
-import {
-  loadContactsFromSupabase,
-  saveContactsToSupabase,
-  loadCongratulationsFromSupabase,
-  saveCongratulationsToSupabase,
-} from '../services/supabaseSync';
 
 const AppContext = createContext(null);
 
@@ -18,46 +12,20 @@ export function AppProvider({ children }) {
   const [contacts, setContacts] = useState([]);
   const [congratulations, setCongratulations] = useState([]);
 
-  const cloudLoadDone = useRef(false);
-
-  /* При входе — загрузка с Supabase (синхронизация между устройствами); при ошибке или выходе — из localStorage. */
+  /* При выходе загружаем из _local, при входе — из userId с подстановкой _local, если по userId пусто. Данные не стираются при выходе. */
   /* eslint-disable react-hooks/set-state-in-effect -- загрузка при смене пользователя */
   useEffect(() => {
-    cloudLoadDone.current = false;
-    let cancelled = false;
-    if (userId) {
-      Promise.all([
-        loadContactsFromSupabase(userId),
-        loadCongratulationsFromSupabase(userId),
-      ]).then(([cloudContacts, cloudCongratulations]) => {
-        if (cancelled) return;
-        cloudLoadDone.current = true;
-        if (cloudContacts !== null) {
-          const list = Array.isArray(cloudContacts) ? cloudContacts : [];
-          setContacts(list.length > 0 ? list : loadContacts(null));
-        } else setContacts(loadContactsWithFallback(userId));
-        if (cloudCongratulations !== null) {
-          const list = Array.isArray(cloudCongratulations) ? cloudCongratulations : [];
-          setCongratulations(list.length > 0 ? list : loadCongratulations(null));
-        } else setCongratulations(loadCongratulationsWithFallback(userId));
-      });
-    } else {
-      cloudLoadDone.current = true;
-      setContacts(loadContactsWithFallback(null));
-      setCongratulations(loadCongratulationsWithFallback(null));
-    }
-    return () => { cancelled = true; };
+    setContacts(loadContactsWithFallback(userId));
+    setCongratulations(loadCongratulationsWithFallback(userId));
   }, [userId]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     saveContacts(contacts, userId);
-    if (userId && cloudLoadDone.current) saveContactsToSupabase(userId, contacts);
   }, [contacts, userId]);
 
   useEffect(() => {
     saveCongratulations(congratulations, userId);
-    if (userId && cloudLoadDone.current) saveCongratulationsToSupabase(userId, congratulations);
   }, [congratulations, userId]);
 
   const addContact = useCallback((contact) => {

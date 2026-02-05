@@ -5,7 +5,9 @@
 1. Зайдите на [vercel.com](https://vercel.com) и войдите через **GitHub** (аккаунт `tattianaart21`).
 2. Нажмите **Add New…** → **Project**.
 3. Импортируйте репозиторий **tattianaart21/Pozdravlator-2000** (если не виден — нажмите **Configure** у GitHub и выдайте доступ репозиторию).
-4. **Важно:** в **Root Directory** укажите **`pozdravlyator`** (без слэшей). Сборка должна идти из этой папки, иначе команда `vite build` не найдётся (ошибка 127).
+4. **Важно:** выберите один из вариантов:
+   - **Вариант A:** **Root Directory** = `pozdravlyator` (рекомендуется). Тогда сборка идёт из папки приложения, используется `pozdravlyator/vercel.json`.
+   - **Вариант B:** **Root Directory** оставьте корень (`.`). Тогда в репозитории есть корневой `vercel.json`, который сам запускает сборку из `pozdravlyator` и отдаёт папку `pozdravlyator/dist`.
 5. **Environment Variables** (переменные окружения) — добавьте:
    - `VITE_SUPABASE_URL` — ваш Supabase URL (например `https://bnytrqhthghkwcydjlyq.supabase.co`).
    - `VITE_SUPABASE_ANON_KEY` — ваш Supabase anon key (из Dashboard → Project Settings → API).
