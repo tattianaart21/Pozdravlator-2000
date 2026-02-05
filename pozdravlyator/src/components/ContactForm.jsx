@@ -7,9 +7,13 @@ import { Input, Textarea } from './Input';
 import { Card } from './Card';
 import '../pages/AddContact.css';
 
+/** Лимит символов в полях досье, чтобы не перегружать контекст ИИ */
+export const DOSSIER_FIELD_MAX_LENGTH = 400;
+
 const emptyForm = {
   name: '',
   birthDate: '',
+  birthYearUnknown: false,
   role: ROLES[0].id,
   defaultTone: TONES[0].id,
   hobbies: '',
@@ -29,10 +33,13 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
 
   useEffect(() => {
     if (initialContact) {
+      const rawBirth = initialContact.birthDate ?? '';
+      const birthYearUnknown = rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-');
       /* eslint-disable react-hooks/set-state-in-effect -- синхронизация формы с контактом */
       setForm({
         name: initialContact.name ?? '',
-        birthDate: initialContact.birthDate ?? '',
+        birthDate: rawBirth,
+        birthYearUnknown,
         role: initialContact.role ?? ROLES[0].id,
         defaultTone: initialContact.defaultTone ?? TONES[0].id,
         hobbies: initialContact.hobbies ?? '',
@@ -48,8 +55,25 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
   }, [initialContact, isEdit]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === 'checkbox') {
+      const checked = e.target.checked;
+      setForm((prev) => {
+        const next = { ...prev, [name]: checked };
+        if (name === 'birthYearUnknown' && prev.birthDate && prev.birthDate.length >= 10) {
+          if (checked) next.birthDate = '0004-' + prev.birthDate.slice(5);
+          else next.birthDate = new Date().getFullYear() + '-' + prev.birthDate.slice(5);
+        }
+        return next;
+      });
+    } else {
+      setForm((prev) => {
+        const next = { ...prev, [name]: value };
+        if (name === 'birthDate' && prev.birthYearUnknown && value && value.length >= 10)
+          next.birthDate = '0004-' + value.slice(5);
+        return next;
+      });
+    }
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
@@ -58,8 +82,8 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
   const validate = () => {
     const next = {};
     if (!form.name.trim()) next.name = 'Введите имя';
-    if (!form.birthDate) next.birthDate = 'Укажите дату рождения';
-    else if (form.birthDate > todayISO) next.birthDate = 'Дата рождения не может быть в будущем';
+    if (!form.birthDate) next.birthDate = 'Укажите дату рождения (хотя бы день и месяц)';
+    else if (!form.birthYearUnknown && form.birthDate > todayISO) next.birthDate = 'Дата рождения не может быть в будущем';
     (form.events ?? []).forEach((ev, i) => {
       if (ev.date && ev.date > todayISO) next[`eventDate_${i}`] = 'Дата не может быть в будущем';
     });
@@ -80,10 +104,14 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
         date: e.date,
       }));
 
+    const birthDate = form.birthYearUnknown && form.birthDate
+      ? '0004-' + form.birthDate.slice(5)
+      : form.birthDate;
+
     const dossier = {
       ...(contactId && { id: contactId }),
       name: form.name.trim(),
-      birthDate: form.birthDate,
+      birthDate,
       role: form.role,
       defaultTone: form.defaultTone,
       hobbies: form.hobbies.trim() || undefined,
@@ -137,16 +165,28 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
             error={errors.name}
             required
           />
-          <Input
-            label="Дата рождения *"
-            name="birthDate"
-            type="date"
-            value={form.birthDate}
-            onChange={handleChange}
-            error={errors.birthDate}
-            max={todayISO}
-            required
-          />
+          <div className="add-contact__birth-row">
+            <Input
+              label="Дата рождения *"
+              name="birthDate"
+              type="date"
+              value={form.birthDate}
+              onChange={handleChange}
+              error={errors.birthDate}
+              max={form.birthYearUnknown ? undefined : todayISO}
+              required
+            />
+            <label className="add-contact__check-label">
+              <input
+                type="checkbox"
+                name="birthYearUnknown"
+                checked={form.birthYearUnknown || false}
+                onChange={handleChange}
+                className="add-contact__check"
+              />
+              <span>Год неизвестен — напоминание в этот день каждый год, в календарь подставится текущий год</span>
+            </label>
+          </div>
           <div className="input-group">
             <label className="input-group__label">Роль / статус</label>
             <select name="role" value={form.role} onChange={handleChange} className="input-group__input">
@@ -206,11 +246,17 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
 
         <Card className="add-contact__card">
           <h2 className="add-contact__section-title">Досье (чем больше — тем персонализированнее поздравления)</h2>
-          <Textarea label="Хобби" name="hobbies" value={form.hobbies} onChange={handleChange} placeholder="Спорт, музыка, путешествия..." />
-          <Textarea label="Мечты" name="dreams" value={form.dreams} onChange={handleChange} placeholder="О чём мечтает?" />
-          <Textarea label="Внутренние шутки" name="jokes" value={form.jokes} onChange={handleChange} placeholder="Общие мемы, фразы..." />
-          <Textarea label="Совместные воспоминания" name="memories" value={form.memories} onChange={handleChange} placeholder="Смешные или тёплые моменты" />
-          <Textarea label="Вкусы (музыка, кино, книги)" name="tastes" value={form.tastes} onChange={handleChange} placeholder="Любимые фильмы, группы, книги" />
+          <p className="add-contact__hint">До {DOSSIER_FIELD_MAX_LENGTH} символов в каждом поле — чтобы не перегружать контекст ИИ.</p>
+          <Textarea label="Хобби" name="hobbies" value={form.hobbies} onChange={handleChange} placeholder="Спорт, музыка, путешествия..." maxLength={DOSSIER_FIELD_MAX_LENGTH} />
+          <span className="add-contact__char-count">{form.hobbies.length}/{DOSSIER_FIELD_MAX_LENGTH}</span>
+          <Textarea label="Мечты" name="dreams" value={form.dreams} onChange={handleChange} placeholder="О чём мечтает?" maxLength={DOSSIER_FIELD_MAX_LENGTH} />
+          <span className="add-contact__char-count">{form.dreams.length}/{DOSSIER_FIELD_MAX_LENGTH}</span>
+          <Textarea label="Внутренние шутки" name="jokes" value={form.jokes} onChange={handleChange} placeholder="Общие мемы, фразы..." maxLength={DOSSIER_FIELD_MAX_LENGTH} />
+          <span className="add-contact__char-count">{form.jokes.length}/{DOSSIER_FIELD_MAX_LENGTH}</span>
+          <Textarea label="Совместные воспоминания" name="memories" value={form.memories} onChange={handleChange} placeholder="Смешные или тёплые моменты" maxLength={DOSSIER_FIELD_MAX_LENGTH} />
+          <span className="add-contact__char-count">{form.memories.length}/{DOSSIER_FIELD_MAX_LENGTH}</span>
+          <Textarea label="Вкусы (музыка, кино, книги)" name="tastes" value={form.tastes} onChange={handleChange} placeholder="Любимые фильмы, группы, книги" maxLength={DOSSIER_FIELD_MAX_LENGTH} />
+          <span className="add-contact__char-count">{form.tastes.length}/{DOSSIER_FIELD_MAX_LENGTH}</span>
         </Card>
 
         <div className="add-contact__actions">

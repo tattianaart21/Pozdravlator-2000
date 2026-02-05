@@ -12,8 +12,12 @@ export function formatDate(date, options = {}) {
   return format(d, options.format ?? 'd MMMM', { locale: ru });
 }
 
+/** Год-маркер «год неизвестен»: дата хранится как 0004-MM-DD, при расчёте используется текущий год */
+export const UNKNOWN_YEAR = 4;
+
 /**
- * Возвращает предстоящие события (ДР, годовщины, свои даты) на основе контактов
+ * Возвращает предстоящие события (ДР, годовщины, свои даты) на основе контактов.
+ * События повторяются каждый год: дата с любым годом (в т.ч. 0004 для «год неизвестен») даёт напоминание в этот день и месяц.
  * @param {Array} contacts — контакты с birthDate и опционально events: [{ id, type, name?, date }]
  * @param {Date} fromDate — от какой даты
  * @param {number} limitDays — сколько дней вперёд
@@ -23,7 +27,7 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
   const endDate = addYears(fromDate, 1);
 
   for (const contact of contacts) {
-    // День рождения
+    // День рождения (дата может быть 0004-MM-DD если год неизвестен — используем только месяц и день, год fromDate)
     if (contact.birthDate) {
       const birth = parseISO(contact.birthDate);
       let eventDate = new Date(fromDate.getFullYear(), birth.getMonth(), birth.getDate());
@@ -49,7 +53,7 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
       }
     }
 
-    // Другие памятные даты (годовщина, своя) — отображаются в календаре с типом события
+    // Другие памятные даты (годовщина, своя) — повторяются каждый год (месяц и день из ev.date, год — fromDate)
     const contactEvents = contact.events ?? [];
     for (const ev of contactEvents) {
       if (!ev.date) continue;

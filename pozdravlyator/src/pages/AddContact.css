@@ -59,6 +59,33 @@
   padding: var(--space-s);
 }
 
+.add-contact__birth-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-s);
+}
+
+.add-contact__check-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-s);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.add-contact__check {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.add-contact__char-count {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  margin-top: -6px;
+  margin-bottom: var(--space-s);
+}
+
 .add-contact__actions {
   display: flex;
   flex-wrap: wrap;
