@@ -43,14 +43,9 @@ async function fetchOneFromSubreddit(subreddit) {
   return { url, title: data?.title ?? '', postLink: data?.postLink ?? '' };
 }
 
-/** URL случайного котика (cataas.com отдаёт картинку по этому адресу). */
-function getRandomCatUrl() {
-  return `https://cataas.com/cat?t=${Date.now()}`;
-}
-
 /**
  * Возвращает одну случайную картинку: { url, title, postLink }.
- * Одна быстрая попытка Reddit (2.5 с), иначе сразу котик cataas — без долгого ожидания.
+ * Сначала быстрая попытка Reddit (2.5 с), иначе picsum.photos — стабильный источник без долгой загрузки.
  */
 export async function fetchRandomMeme(_options = {}) {
   const subreddits = [...MEME_STICKER_SUBREDDITS].sort(() => Math.random() - 0.5);
@@ -64,8 +59,8 @@ export async function fetchRandomMeme(_options = {}) {
   }
 
   return {
-    url: getRandomCatUrl(),
-    title: 'Котик',
+    url: getRandomImageUrl('meme'),
+    title: 'Случайная картинка',
     postLink: '',
   };
 }
@@ -82,7 +77,7 @@ export function getContextualSubreddits() {
 }
 
 /**
- * Запасной URL случайной картинки (picsum), если API мемов недоступен.
+ * Запасной URL случайной картинки (picsum), если основная картинка не загрузилась.
  */
 export function getRandomImageUrl(keyword = 'birthday') {
   const seed = encodeURIComponent(keyword) + Date.now();

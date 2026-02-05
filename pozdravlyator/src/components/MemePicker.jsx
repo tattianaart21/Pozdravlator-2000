@@ -19,6 +19,8 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const [imgLoading, setImgLoading] = useState(true);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
+  const loadTimeoutRef = useRef(null);
+  const IMAGE_LOAD_TIMEOUT_MS = 12000;
 
   const handleLoadRandom = async () => {
     setLoading(true);
@@ -77,7 +79,21 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const canGoPrevious = currentIndex > 0;
 
   useEffect(() => {
-    if (displayUrl) setImgLoading(true);
+    if (!displayUrl) return;
+    setImgLoading(true);
+    if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
+    if (displayUrl.startsWith('http')) {
+      loadTimeoutRef.current = setTimeout(() => {
+        loadTimeoutRef.current = null;
+        replaceUrlWithFallback(displayUrl);
+      }, IMAGE_LOAD_TIMEOUT_MS);
+    }
+    return () => {
+      if (loadTimeoutRef.current) {
+        clearTimeout(loadTimeoutRef.current);
+        loadTimeoutRef.current = null;
+      }
+    };
   }, [displayUrl]);
   const canGoNext = currentIndex >= 0 && currentIndex < loadedList.length - 1;
 
@@ -162,7 +178,13 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
             alt="Стикер к поздравлению"
             className="meme-picker__img"
             decoding="async"
-            onLoad={() => setImgLoading(false)}
+            onLoad={() => {
+              if (loadTimeoutRef.current) {
+                clearTimeout(loadTimeoutRef.current);
+                loadTimeoutRef.current = null;
+              }
+              setImgLoading(false);
+            }}
             onError={(e) => {
               const failed = e.target.src;
               const fallback = getFallbackImageUrl();
