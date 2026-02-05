@@ -1,50 +1,86 @@
 /**
- * Картинки к поздравлению: встроенный SVG-фон (без внешних запросов — нет таймаутов и ошибок).
+ * Картинки к поздравлению: мемные поздравления и котики из интернета (Reddit API).
+ * При таймауте или ошибке — запасной вариант: picsum.photos.
  */
 
-/** Встроенный фон-плейсхолдер: градиент + шарики, без загрузки из сети. */
-function getEmbeddedPlaceholderUrl() {
-  const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">
-      <defs>
-        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#ff9a9e"/>
-          <stop offset="100%" style="stop-color:#fecfef"/>
-        </linearGradient>
-        <radialGradient id="ball">
-          <stop offset="0%" style="stop-color:#fff"/>
-          <stop offset="100%" style="stop-color:#ffb3ba"/>
-        </radialGradient>
-      </defs>
-      <rect width="400" height="300" fill="url(#g)"/>
-      <circle cx="80" cy="60" r="24" fill="url(#ball)" opacity="0.9"/>
-      <circle cx="320" cy="80" r="20" fill="url(#ball)" opacity="0.8"/>
-      <circle cx="200" cy="220" r="28" fill="url(#ball)" opacity="0.85"/>
-    </svg>
-  `.replace(/\s+/g, ' ').trim();
-  return 'data:image/svg+xml,' + encodeURIComponent(svg);
+const MEME_API_BASE = 'https://meme-api.com/gimme';
+const REQUEST_TIMEOUT_MS = 8000;
+
+/** Сабреддиты: котики и мемные/поздравительные. */
+const MEME_STICKER_SUBREDDITS = [
+  'cats',
+  'aww',
+  'catpictures',
+  'CatsWithDogs',
+  'wholesomememes',
+  'memes',
+  'dankmemes',
+  'MadeMeSmile',
+  'CongratsLikeIm5',
+];
+
+/**
+ * Запрос к API с таймаутом.
+ * @param {string} url
+ * @returns {Promise<Response>}
+ */
+function fetchWithTimeout(url) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(id));
 }
 
 /**
- * Возвращает одну «картинку»: { url, title, postLink }.
- * Только встроенный SVG — без запросов в интернет, ошибок не будет.
+ * Пытается получить один мем по сабреддиту.
+ * @param {string} subreddit
+ * @returns {Promise<{ url: string, title: string, postLink: string } | null>}
+ */
+async function fetchOneFromSubreddit(subreddit) {
+  const res = await fetchWithTimeout(`${MEME_API_BASE}/${subreddit}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const url = data?.url;
+  if (!url || typeof url !== 'string') return null;
+  const isImage = /\.(jpe?g|png|gif|webp)$/i.test(url) || /\.(jpe?g|png|gif|webp)\?/i.test(url);
+  if (!isImage) return null;
+  return {
+    url,
+    title: data?.title ?? '',
+    postLink: data?.postLink ?? '',
+  };
+}
+
+/**
+ * Возвращает одну случайную картинку: { url, title, postLink }.
+ * Сначала пробует мемы/котики из Reddit, при неудаче — picsum.photos.
  */
 export async function fetchRandomMeme(_options = {}) {
+  const subreddits = [...MEME_STICKER_SUBREDDITS].sort(() => Math.random() - 0.5);
+
+  for (let i = 0; i < Math.min(3, subreddits.length); i++) {
+    try {
+      const result = await fetchOneFromSubreddit(subreddits[i]);
+      if (result) return result;
+    } catch {
+      // таймаут или ошибка — пробуем следующий сабреддит
+    }
+  }
+
   return {
-    url: getEmbeddedPlaceholderUrl(),
+    url: getRandomImageUrl('congrats'),
     title: '',
     postLink: '',
   };
 }
 
-/** Оставлено для совместимости (getContextualSubreddits может вызываться из других мест). */
 export function getContextualSubreddits() {
-  return [];
+  return [...MEME_STICKER_SUBREDDITS];
 }
 
 /**
- * Возвращает URL встроенного фона (без внешних запросов).
+ * Запасной URL случайной картинки (picsum), если API мемов недоступен.
  */
 export function getRandomImageUrl(keyword = 'birthday') {
-  return getEmbeddedPlaceholderUrl();
+  const seed = encodeURIComponent(keyword) + Date.now();
+  return `https://picsum.photos/seed/${seed}/400/300`;
 }
