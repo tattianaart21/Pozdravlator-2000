@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
-import { fetchRandomMeme, getFallbackImageUrl } from '../services/memeApi';
+import { fetchRandomMeme, getFallbackImageUrl, getPlaceholderImageUrl, fetchAnotherImage } from '../services/memeApi';
 import { Button } from './Button';
 import './MemePicker.css';
 
@@ -20,11 +20,14 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
   const loadTimeoutRef = useRef(null);
+  const fallbackAttemptsRef = useRef(0);
   const IMAGE_LOAD_TIMEOUT_MS = 12000;
+  const MAX_FALLBACK_ATTEMPTS = 4;
 
   const handleLoadRandom = async () => {
     setLoading(true);
     setError(null);
+    fallbackAttemptsRef.current = 0;
     try {
       const data = await fetchRandomMeme({ toneId, contact });
       if (data) {
@@ -67,10 +70,18 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
     e.target.value = '';
   };
 
-  const replaceUrlWithFallback = (failedUrl) => {
-    const fallback = getFallbackImageUrl();
+  const replaceUrlWithFallback = (failedUrl, newUrl) => {
+    const url = newUrl ?? getFallbackImageUrl();
     setLoadedList((prev) =>
-      prev.map((item) => (item.url === failedUrl ? { ...item, url: fallback } : item))
+      prev.map((item) => (item.url === failedUrl ? { ...item, url } : item))
+    );
+  };
+
+  const replaceUrlWithPlaceholder = (failedUrl) => {
+    fallbackAttemptsRef.current = 0;
+    const placeholder = getPlaceholderImageUrl();
+    setLoadedList((prev) =>
+      prev.map((item) => (item.url === failedUrl ? { ...item, url: placeholder } : item))
     );
   };
 
@@ -82,10 +93,15 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
     if (!displayUrl) return;
     setImgLoading(true);
     if (loadTimeoutRef.current) clearTimeout(loadTimeoutRef.current);
-    if (displayUrl.startsWith('http')) {
+    if (displayUrl.startsWith('http') && !displayUrl.startsWith('data:')) {
       loadTimeoutRef.current = setTimeout(() => {
         loadTimeoutRef.current = null;
-        replaceUrlWithFallback(displayUrl);
+        fallbackAttemptsRef.current += 1;
+        if (fallbackAttemptsRef.current >= MAX_FALLBACK_ATTEMPTS) {
+          replaceUrlWithPlaceholder(displayUrl);
+        } else {
+          fetchAnotherImage().then(({ url }) => replaceUrlWithFallback(displayUrl, url));
+        }
       }, IMAGE_LOAD_TIMEOUT_MS);
     }
     return () => {
@@ -185,12 +201,28 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
               }
               setImgLoading(false);
             }}
-            onError={(e) => {
+            onError={async (e) => {
               const failed = e.target.src;
-              const fallback = getFallbackImageUrl();
-              if (failed !== fallback) {
-                e.target.src = fallback;
-                replaceUrlWithFallback(displayUrl);
+              const placeholder = getPlaceholderImageUrl();
+              if (failed === placeholder) {
+                setImgLoading(false);
+                return;
+              }
+              fallbackAttemptsRef.current += 1;
+              if (fallbackAttemptsRef.current >= MAX_FALLBACK_ATTEMPTS) {
+                e.target.src = placeholder;
+                replaceUrlWithPlaceholder(displayUrl);
+                setImgLoading(false);
+                return;
+              }
+              try {
+                const { url } = await fetchAnotherImage();
+                e.target.src = url;
+                replaceUrlWithFallback(displayUrl, url);
+              } catch {
+                const url = getFallbackImageUrl();
+                e.target.src = url;
+                replaceUrlWithFallback(displayUrl, url);
               }
               setImgLoading(false);
             }}
