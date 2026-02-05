@@ -30,6 +30,15 @@ export function Landing() {
         <span className="landing__grid-annot landing__grid-annot--1">ДАТЫ</span>
         <span className="landing__grid-annot landing__grid-annot--2">ДОСЬЕ</span>
         <span className="landing__grid-annot landing__grid-annot--3">ИИ</span>
+        <span className="landing__grid-annot landing__grid-annot--4">КАЛЕНДАРЬ</span>
+        <span className="landing__grid-annot landing__grid-annot--5">ПОВОД</span>
+        <span className="landing__grid-annot landing__grid-annot--6">ТЕКСТ</span>
+        <span className="landing__grid-annot landing__grid-annot--7">НАПОМИНАНИЯ</span>
+        <span className="landing__grid-annot landing__grid-annot--8">КОНТАКТЫ</span>
+        <span className="landing__grid-annot landing__grid-annot--9">ТОН</span>
+        <span className="landing__grid-annot landing__grid-annot--10">ПОЗДРАВЛЕНИЯ</span>
+        <span className="landing__grid-annot landing__grid-annot--11">ДР</span>
+        <span className="landing__grid-annot landing__grid-annot--12">ПЕРСОНАЛЬНО</span>
       </div>
 
       <header className="landing__hero">
@@ -40,10 +49,6 @@ export function Landing() {
       </header>
 
       <section className="landing__content">
-        <p className="landing__desc">
-          Персональный ассистент по тёплым отношениям: досье контактов, календарь событий,
-          генерация текстов под человека и повод. Один сервис — чтобы ни одна важная дата не прошла мимо.
-        </p>
         <div className="landing__actions">
           <Link to="/login">
             <Button variant="primary" className="landing__btn">Войти</Button>

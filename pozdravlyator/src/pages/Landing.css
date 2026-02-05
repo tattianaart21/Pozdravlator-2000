@@ -86,6 +86,15 @@
 .landing__grid-annot--1 { top: 18%; left: 12%; }
 .landing__grid-annot--2 { top: 45%; right: 15%; }
 .landing__grid-annot--3 { bottom: 22%; left: 20%; }
+.landing__grid-annot--4 { top: 8%; right: 22%; opacity: 0.5; font-size: 0.6rem; }
+.landing__grid-annot--5 { top: 28%; right: 8%; opacity: 0.55; }
+.landing__grid-annot--6 { top: 62%; left: 8%; opacity: 0.5; font-size: 0.6rem; }
+.landing__grid-annot--7 { top: 75%; right: 20%; opacity: 0.55; }
+.landing__grid-annot--8 { bottom: 35%; left: 10%; opacity: 0.5; }
+.landing__grid-annot--9 { top: 38%; left: 6%; opacity: 0.45; font-size: 0.58rem; }
+.landing__grid-annot--10 { bottom: 12%; right: 12%; opacity: 0.55; font-size: 0.6rem; }
+.landing__grid-annot--11 { top: 52%; right: 28%; opacity: 0.4; font-size: 0.55rem; }
+.landing__grid-annot--12 { bottom: 48%; right: 8%; opacity: 0.5; font-size: 0.58rem; }
 
 .landing__hero {
   position: relative;
@@ -117,13 +126,6 @@
   z-index: 1;
   max-width: 480px;
   text-align: center;
-}
-
-.landing__desc {
-  font-size: 0.9375rem;
-  line-height: 1.65;
-  color: var(--landing-muted);
-  margin: 0 0 var(--space-xl);
 }
 
 .landing__actions {
