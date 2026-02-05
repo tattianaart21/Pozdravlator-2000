@@ -25,7 +25,17 @@ export function SettingsProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-background', backgroundOn ? 'on' : 'off');
+    const value = backgroundOn ? 'on' : 'off';
+    document.documentElement.setAttribute('data-background', value);
+  }, [backgroundOn]);
+
+  /* На мобильных повторно применяем фон при возврате во вкладку (Safari/iOS). */
+  useEffect(() => {
+    const handler = () => {
+      document.documentElement.setAttribute('data-background', backgroundOn ? 'on' : 'off');
+    };
+    document.addEventListener('visibilitychange', handler);
+    return () => document.removeEventListener('visibilitychange', handler);
   }, [backgroundOn]);
 
   const value = { backgroundOn, setBackgroundOn };

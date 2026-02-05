@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, ChevronDown, ChevronUp, Users, Bookmark, Award, TrendingUp } from 'lucide-react';
+import { Users, Bookmark, Award, TrendingUp } from 'lucide-react';
 import { useAuth } from '../store/AuthContext';
 import { useTheme } from '../store/ThemeContext';
 import { usePalette } from '../store/PaletteContext';
@@ -9,8 +9,6 @@ import { useApp } from '../store/AppContext';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import './Profile.css';
-
-const AI_SETUP_URL = 'https://bnytrqhthghkwcydjlyq.supabase.co/functions/v1/generate-congratulation';
 
 const DOSSIER_FIELDS = ['name', 'birthDate', 'role', 'hobbies', 'dreams', 'jokes', 'memories', 'tastes'];
 
@@ -24,7 +22,6 @@ function dossierCompletionPercent(contact) {
 }
 
 export function Profile() {
-  const [aiHelpOpen, setAiHelpOpen] = useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { themeId, setThemeId, themes } = useTheme();
@@ -137,35 +134,6 @@ export function Profile() {
           >
             <span className="profile__toggle-thumb" />
           </button>
-        </div>
-
-        <div className="profile__ai">
-          <button
-            type="button"
-            className="profile__ai-toggle"
-            onClick={() => setAiHelpOpen((v) => !v)}
-            aria-expanded={aiHelpOpen}
-          >
-            <Sparkles size={18} strokeWidth={2} />
-            <span>Качество поздравлений: подключить ИИ</span>
-            {aiHelpOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-          </button>
-          {aiHelpOpen && (
-            <div className="profile__ai-content">
-              <p className="profile__ai-text">
-                Для качественной генерации подключите ИИ. По умолчанию используется <strong>DeepSeek</strong> (открытый OpenAI-совместимый API) — задайте в Supabase только <code>AI_API_KEY</code> (ключ с platform.deepseek.com). Также можно использовать OpenAI или Perplexity (см. docs/AI_SETUP.md). Ключ хранится в Supabase, в браузере не светится.
-              </p>
-              <ol className="profile__ai-steps">
-                <li>Задеплойте Edge Function и задайте секреты в Supabase (см. <code>docs/AI_SETUP.md</code> в корне проекта).</li>
-                <li>В <code>.env</code> в папке pozdravlyator добавьте:<br />
-                  <code className="profile__ai-code">VITE_AI_API_URL={AI_SETUP_URL}</code>
-                </li>
-              </ol>
-              <p className="profile__ai-text profile__ai-text--small">
-                OpenAI: <code>AI_CHAT_URL</code> = api.openai.com, <code>AI_MODEL</code> = gpt-4o-mini. DeepSeek: api.deepseek.com, <code>deepseek-chat</code>. Perplexity: api.perplexity.ai, <code>sonar</code>. Подробно — в AI_SETUP.md.
-              </p>
-            </div>
-          )}
         </div>
 
         <Button variant="secondary" className="profile__logout" onClick={handleSignOut}>
