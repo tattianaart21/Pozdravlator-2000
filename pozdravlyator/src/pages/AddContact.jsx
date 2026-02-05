@@ -13,12 +13,17 @@ export function AddContact() {
   const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [savedContactId, setSavedContactId] = useState(null);
   const [savedDossier, setSavedDossier] = useState(null);
+  const [wantGoogleReminder, setWantGoogleReminder] = useState(true);
 
   const handleSubmit = (dossier) => {
     const id = addContact(dossier);
-    setSavedContactId(id);
-    setSavedDossier(dossier);
-    setShowGoogleModal(true);
+    if (wantGoogleReminder) {
+      setSavedContactId(id);
+      setSavedDossier(dossier);
+      setShowGoogleModal(true);
+    } else {
+      navigate('/contacts', { replace: true });
+    }
   };
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
@@ -39,12 +44,23 @@ export function AddContact() {
 
   return (
     <>
-      <ContactForm
-        onSubmit={handleSubmit}
-        title="Новый контакт"
-        subtitle="Заполните досье — ИИ подберёт персональные поздравления"
-        submitLabel="Сохранить контакт"
-      />
+      <div className="add-contact-page">
+        <label className="add-contact-page__google-check">
+          <input
+            type="checkbox"
+            checked={wantGoogleReminder}
+            onChange={(e) => setWantGoogleReminder(e.target.checked)}
+            className="add-contact-page__google-input"
+          />
+          <span>После сохранения предложить добавить напоминание в Google Календарь</span>
+        </label>
+        <ContactForm
+          onSubmit={handleSubmit}
+          title="Новый контакт"
+          subtitle="Заполните досье — ИИ подберёт персональные поздравления"
+          submitLabel="Сохранить контакт"
+        />
+      </div>
 
       {showGoogleModal && (
         <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-google-title">

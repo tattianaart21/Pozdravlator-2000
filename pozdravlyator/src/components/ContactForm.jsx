@@ -56,12 +56,31 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
     }
   }, [initialContact, isEdit]);
 
+  const currentYear = new Date().getFullYear();
+
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      setForm((prev) => ({ ...prev, [name]: e.target.checked }));
+      const checked = e.target.checked;
+      setForm((prev) => {
+        const next = { ...prev, [name]: checked };
+        if (name === 'birthYearUnknown') {
+          if (checked) {
+            const monthDay = (prev.birthDate && prev.birthDate.length >= 10) ? prev.birthDate.slice(5) : '01-01';
+            next.birthDate = currentYear + '-' + monthDay;
+          } else if (prev.birthDate?.length >= 10) {
+            next.birthDate = currentYear + '-' + prev.birthDate.slice(5);
+          }
+        }
+        return next;
+      });
     } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+      setForm((prev) => {
+        const next = { ...prev, [name]: value };
+        if (name === 'birthDate' && prev.birthYearUnknown && value?.length >= 10)
+          next.birthDate = currentYear + '-' + value.slice(5);
+        return next;
+      });
     }
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
@@ -152,8 +171,18 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
             required
           />
           <div className="add-contact__birth-row">
+            <label className="add-contact__check-label add-contact__check-label--first">
+              <input
+                type="checkbox"
+                name="birthYearUnknown"
+                checked={form.birthYearUnknown || false}
+                onChange={handleChange}
+                className="add-contact__check"
+              />
+              <span>Год неизвестен — укажу только день и месяц, напоминание каждый год в эту дату</span>
+            </label>
             <Input
-              label="Дата рождения *"
+              label={form.birthYearUnknown ? 'День и месяц рождения *' : 'Дата рождения *'}
               name="birthDate"
               type="date"
               value={form.birthDate}
@@ -162,16 +191,11 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
               max={form.birthYearUnknown ? undefined : todayISO}
               required
             />
-            <label className="add-contact__check-label">
-              <input
-                type="checkbox"
-                name="birthYearUnknown"
-                checked={form.birthYearUnknown || false}
-                onChange={handleChange}
-                className="add-contact__check"
-              />
-              <span>Не знаю год — напоминать каждый год в этот день и месяц (в календарь подставится текущий год)</span>
-            </label>
+            {form.birthYearUnknown && (
+              <p className="add-contact__hint add-contact__hint--small">
+                Под капотом подставлен текущий год для календаря; напоминание будет в этот день и месяц каждый год.
+              </p>
+            )}
           </div>
           <div className="input-group">
             <label className="input-group__label">Роль / статус</label>

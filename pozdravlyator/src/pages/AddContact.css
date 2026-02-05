@@ -1,3 +1,22 @@
+.add-contact-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-m);
+}
+
+.add-contact-page__google-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.add-contact-page__google-input {
+  flex-shrink: 0;
+}
+
 .add-contact {
   padding-bottom: calc(60px + var(--space-l));
 }
@@ -25,6 +44,15 @@
   font-size: 0.85rem;
   color: var(--color-text-secondary);
   margin: 0 0 var(--space-s) 0;
+}
+
+.add-contact__hint--small {
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.add-contact__check-label--first {
+  order: -1;
 }
 
 .add-contact__events {
