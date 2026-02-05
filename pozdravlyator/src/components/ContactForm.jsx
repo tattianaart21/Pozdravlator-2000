@@ -33,8 +33,10 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
 
   useEffect(() => {
     if (initialContact) {
-      const rawBirth = initialContact.birthDate ?? '';
-      const birthYearUnknown = rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-');
+      let rawBirth = initialContact.birthDate ?? '';
+      const birthYearUnknown = rawBirth.startsWith('1000-') || rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-');
+      if (rawBirth.length >= 10 && (rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-')))
+        rawBirth = '1000-' + rawBirth.slice(5);
       /* eslint-disable react-hooks/set-state-in-effect -- синхронизация формы с контактом */
       setForm({
         name: initialContact.name ?? '',
@@ -61,8 +63,9 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
       setForm((prev) => {
         const next = { ...prev, [name]: checked };
         if (name === 'birthYearUnknown' && prev.birthDate && prev.birthDate.length >= 10) {
-          if (checked) next.birthDate = '0004-' + prev.birthDate.slice(5);
-          else next.birthDate = new Date().getFullYear() + '-' + prev.birthDate.slice(5);
+          const monthDay = prev.birthDate.slice(5); // "MM-DD"
+          if (checked) next.birthDate = '1000-' + monthDay;
+          else next.birthDate = new Date().getFullYear() + '-' + monthDay;
         }
         return next;
       });
@@ -70,7 +73,7 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
       setForm((prev) => {
         const next = { ...prev, [name]: value };
         if (name === 'birthDate' && prev.birthYearUnknown && value && value.length >= 10)
-          next.birthDate = '0004-' + value.slice(5);
+          next.birthDate = '1000-' + value.slice(5);
         return next;
       });
     }
@@ -104,8 +107,8 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
         date: e.date,
       }));
 
-    const birthDate = form.birthYearUnknown && form.birthDate
-      ? '0004-' + form.birthDate.slice(5)
+    const birthDate = form.birthYearUnknown && form.birthDate && form.birthDate.length >= 10
+      ? '1000-' + form.birthDate.slice(5)
       : form.birthDate;
 
     const dossier = {
@@ -184,7 +187,7 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
                 onChange={handleChange}
                 className="add-contact__check"
               />
-              <span>Год неизвестен — напоминание в этот день каждый год, в календарь подставится текущий год</span>
+              <span>Не знаю год — напоминать каждый год в этот день и месяц (в календарь подставится текущий год)</span>
             </label>
           </div>
           <div className="input-group">
