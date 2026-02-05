@@ -6,20 +6,20 @@
 
 const MEME_API = 'https://meme-api.com/gimme';
 
-/** Приоритет: котики, собачки, уточки и смешные/милые картинки для поздравления */
+/** Приоритет: субреддиты, которые чаще отвечают без таймаута */
 const MEME_STICKER_SUBREDDITS = [
   'cats',
   'aww',
-  'rarepuppers',
-  'catpictures',
-  'duck',
-  'CatsWithDogs',
+  'Eyebleach',
   'wholesomememes',
-  'MadeMeSmile',
+  'catpictures',
+  'rarepuppers',
+  'duck',
   'funny',
   'memes',
+  'MadeMeSmile',
+  'CatsWithDogs',
   'dankmemes',
-  'Eyebleach',
 ];
 
 /** Fallback: милые животные и праздничный контент */
@@ -102,37 +102,39 @@ export function getContextualSubreddits(toneId, contact = null) {
   return MEME_STICKER_SUBREDDITS;
 }
 
-/**
- * Возвращает одну случайную картинку: { url, title, postLink } или null.
- * @param {{ toneId?: string, contact?: { hobbies?, tastes?, role? } }} options — тон и контакт для контекстного подбора (гик → мемы по вселенным).
- */
-/** Таймаут запроса к meme-api (могут быть блокировки/задержки) */
-const MEME_FETCH_TIMEOUT_MS = 8000;
+/** Таймаут одного запроса к meme-api (при таймауте/блокировке сразу даём picsum) */
+const MEME_FETCH_TIMEOUT_MS = 4000;
 
+/** Пробуем один запрос к meme-api; при ошибке или таймауте возвращаем null. */
+async function tryFetchOneSubreddit(sub, signal) {
+  const res = await fetch(`${MEME_API}/${sub}`, { signal });
+  if (!res.ok) return null;
+  const data = await res.json();
+  return { url: data.url, title: data.title ?? '', postLink: data.postLink ?? '' };
+}
+
+/**
+ * Возвращает одну случайную картинку: { url, title, postLink }. При недоступности meme-api — картинка с picsum.photos.
+ */
 export async function fetchRandomMeme(options = {}) {
   const { toneId, contact } = options;
   const subreddits = toneId || contact
     ? getContextualSubreddits(toneId, contact)
     : MEME_STICKER_SUBREDDITS;
-  try {
-    const sub = subreddits[Math.floor(Math.random() * subreddits.length)];
+  const shuffled = [...subreddits].sort(() => Math.random() - 0.5);
+
+  for (let i = 0; i < Math.min(2, shuffled.length); i++) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), MEME_FETCH_TIMEOUT_MS);
-    const res = await fetch(`${MEME_API}/${sub}`, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    if (!res.ok) return fallbackImage();
-    const data = await res.json();
-    return {
-      url: data.url,
-      title: data.title ?? '',
-      postLink: data.postLink,
-    };
-  } catch {
-    return fallbackImage();
+    try {
+      const result = await tryFetchOneSubreddit(shuffled[i], controller.signal);
+      clearTimeout(timeoutId);
+      if (result?.url) return result;
+    } catch {
+      clearTimeout(timeoutId);
+    }
   }
-}
 
-function fallbackImage() {
   return {
     url: getRandomImageUrl('congrats'),
     title: '',
