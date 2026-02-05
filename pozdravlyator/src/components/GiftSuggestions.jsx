@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Gift, ChevronDown, ChevronUp, Loader2, RefreshCw } from 'lucide-react';
 import { getGiftSuggestions } from '../services/giftSuggestions';
 import { getGiftSuggestionsFromAI } from '../services/api';
@@ -29,15 +29,7 @@ export function GiftSuggestions({ dossier, occasion = '', className = '' }) {
       .finally(() => setLoading(false));
   }, [dossier, occasion]);
 
-  useEffect(() => {
-    if (!dossier) {
-      setSuggestions([]);
-      return;
-    }
-    fetchSuggestions();
-  }, [dossier, occasion, fetchSuggestions]);
-
-  if (!dossier || (suggestions.length === 0 && !loading)) return null;
+  if (!dossier) return null;
 
   return (
     <div className={`gift-suggestions ${className}`.trim()}>
@@ -56,9 +48,13 @@ export function GiftSuggestions({ dossier, occasion = '', className = '' }) {
       {open && (
         <>
           <ul id="gift-suggestions-list" className="gift-suggestions__list">
-            {suggestions.map((text, i) => (
-              <li key={i} className="gift-suggestions__item">{text}</li>
-            ))}
+            {suggestions.length === 0 && !loading ? (
+              <li className="gift-suggestions__empty">Нажмите «Обновить список», чтобы подгрузить идеи подарков.</li>
+            ) : (
+              suggestions.map((text, i) => (
+                <li key={i} className="gift-suggestions__item">{text}</li>
+              ))
+            )}
           </ul>
           <button
             type="button"

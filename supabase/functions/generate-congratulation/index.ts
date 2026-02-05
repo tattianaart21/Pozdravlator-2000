@@ -45,6 +45,10 @@ function hasPersonalInfo(dossier: Record<string, unknown>): boolean {
 function buildPromptGeneric(name: string, toneId: string, occasion: string): string {
   const toneName = TONES[toneId] ?? 'Трогательный';
   const toneInstruction = TONE_INSTRUCTIONS[toneId] ?? TONE_INSTRUCTIONS.touching;
+  const isVerse = toneId === 'verse';
+  const formatLine = isVerse
+    ? 'Ответ: 5 поздравлений В СТИХАХ (каждый 2–4 строки). Разделяй варианты ПУСТОЙ СТРОКОЙ (два переноса). Сохраняй переносы внутри стихотворения.'
+    : 'Правила: склоняй имя по падежам. 5 разных вариантов. Без нумерации, по одному на строку.';
   return [
     'Досье пустое — нет хобби, мечт, воспоминаний и т.д. Сгенерируй 5 СТАНДАРТНЫХ поздравлений БЕЗ персонализации.',
     'Используй ТОЛЬКО: имя получателя, повод и тон. Не придумывай факты о человеке.',
@@ -53,7 +57,7 @@ function buildPromptGeneric(name: string, toneId: string, occasion: string): str
     `Повод: ${occasion}.`,
     `Тон: ${toneName}. ${toneInstruction}`,
     '',
-    'Правила: склоняй имя по падежам («Поздравляю Машу», «Маше желаю», «Маша, с днём рождения»). 5 разных вариантов по структуре и началу. Без нумерации, по одному на строку.',
+    formatLine,
   ].join('\n');
 }
 
@@ -104,18 +108,36 @@ function buildPrompt(
   if (dossier.memories) parts.push(`Совместные воспоминания: ${dossier.memories}.`);
   if (dossier.tastes) parts.push(`Вкусы (музыка, кино, книги): ${dossier.tastes}.`);
 
-  parts.push(
-    '',
-    'Ответ: ровно 5 разных текстов, по одному на строку. Без нумерации, без заголовков, без кавычек. Каждая строка — один вариант. Варианты не должны быть похожи по формулировкам.'
-  );
+  const isVerse = toneId === 'verse';
+  if (isVerse) {
+    parts.push(
+      '',
+      'Ответ: ровно 5 разных поздравлений В СТИХАХ (каждый 2–4 строки). Разделяй варианты ПУСТОЙ СТРОКОЙ (два переноса строки). Без нумерации. Сохраняй переносы строк внутри каждого стихотворения.'
+    );
+  } else {
+    parts.push(
+      '',
+      'Ответ: ровно 5 разных текстов, по одному на строку. Без нумерации, без заголовков, без кавычек. Каждая строка — один вариант. Варианты не должны быть похожи по формулировкам.'
+    );
+  }
 
   return parts.join('\n');
 }
 
-function parseVariants(content: string): string[] {
+function parseVariants(content: string, toneId?: string): string[] {
+  const trimLine = (s: string) => s.replace(/^\d+[.)]\s*/, '').replace(/^["']|["']$/g, '').trim();
+
+  if (toneId === 'verse') {
+    const blocks = content
+      .split(/\n\s*\n/)
+      .map((b) => trimLine(b))
+      .filter((b) => b.length > 10);
+    if (blocks.length >= 1) return blocks.slice(0, 5);
+  }
+
   const lines = content
     .split(/\n+/)
-    .map((s) => s.replace(/^\d+[.)]\s*/, '').replace(/^["']|["']$/g, '').trim())
+    .map((s) => trimLine(s))
     .filter((s) => s.length > 15);
   return lines.slice(0, 5);
 }
@@ -206,7 +228,8 @@ Deno.serve(async (req) => {
       data.candidates?.[0]?.content?.parts?.[0]?.text ??
       '';
 
-    const texts = parseVariants(content);
+    const toneIdVal = toneId ?? 'touching';
+    const texts = parseVariants(content, toneIdVal);
     if (texts.length === 0) texts.push(content.trim() || 'Поздравляю! Пусть всё будет хорошо.');
 
     return new Response(JSON.stringify({ texts }), {

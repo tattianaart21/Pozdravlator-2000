@@ -168,6 +168,9 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
       )}
 
       {error && <p className="meme-picker__error" role="alert">{error}</p>}
+      {!displayUrl && !loading && (
+        <p className="meme-picker__hint">Нажмите «Случайная картинка» или загрузите свою — она появится здесь.</p>
+      )}
       {displayUrl && (
         <div className="meme-picker__preview">
           {imgLoading && (

@@ -63,6 +63,18 @@
   color: var(--color-primary);
 }
 
+.gift-suggestions__empty {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+  padding-left: 0;
+  list-style: none;
+}
+
+.gift-suggestions__empty::before {
+  content: none;
+}
+
 .gift-suggestions__refresh {
   display: inline-flex;
   align-items: center;

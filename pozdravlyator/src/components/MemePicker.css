@@ -60,6 +60,12 @@
   color: var(--color-text-secondary);
 }
 
+.meme-picker__hint {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
 .meme-picker__error {
   margin: 0;
   font-size: 0.9rem;
