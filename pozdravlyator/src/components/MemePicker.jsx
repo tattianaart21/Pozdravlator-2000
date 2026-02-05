@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
-import { fetchRandomMeme, getFallbackImageUrl, getPlaceholderImageUrl } from '../services/memeApi';
+import { fetchRandomMeme, getFallbackImageUrl, getPlaceholderImageUrl, getStickerPackNamesFromStorage, saveStickerPackNamesToStorage } from '../services/memeApi';
+import { getRandomTelegramSticker } from '../services/api';
 import { Button } from './Button';
 import './MemePicker.css';
 
 /**
- * Стикеры к поздравлению: мемы, смешные картинки + возможность добавить свою.
+ * Стикеры к поздравлению: мемы, стикеры Telegram (если указаны наборы) или своя картинка.
  */
 export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const [loadedList, setLoadedList] = useState([]);
@@ -13,14 +14,42 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const [loading, setLoading] = useState(false);
   const [imgLoading, setImgLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [telegramPacksInput, setTelegramPacksInput] = useState('');
+  const [telegramPacksSaved, setTelegramPacksSaved] = useState(false);
   const fileInputRef = useRef(null);
   const loadTimeoutRef = useRef(null);
   const IMAGE_LOAD_TIMEOUT_MS = 12000;
+
+  useEffect(() => {
+    const names = getStickerPackNamesFromStorage();
+    setTelegramPacksInput(names.join(', '));
+  }, []);
+
+  const handleSaveTelegramPacks = () => {
+    const list = telegramPacksInput.split(',').map((s) => s.trim()).filter(Boolean);
+    saveStickerPackNamesToStorage(list);
+    setTelegramPacksSaved(true);
+    setTimeout(() => setTelegramPacksSaved(false), 2000);
+  };
 
   const handleLoadRandom = async () => {
     setLoading(true);
     setError(null);
     try {
+      const packNames = getStickerPackNamesFromStorage();
+      if (packNames.length > 0) {
+        const data = await getRandomTelegramSticker(packNames);
+        if (data) {
+          setImgLoading(true);
+          setLoadedList((prev) => {
+            const next = [...prev, { url: data.url }];
+            setCurrentIndex(next.length - 1);
+            return next;
+          });
+          setLoading(false);
+          return;
+        }
+      }
       const data = await fetchRandomMeme({ toneId, contact });
       if (data) {
         setImgLoading(true);
@@ -102,6 +131,28 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   return (
     <div className="meme-picker">
       <h3 className="meme-picker__title">Стикер к поздравлению</h3>
+
+      <div className="meme-picker__telegram-section">
+        <label className="meme-picker__telegram-label">
+          Стикерпаки Telegram (по желанию)
+        </label>
+        <p className="meme-picker__telegram-hint">
+          Имена наборов через запятую. Имя — последняя часть ссылки t.me/addstickers/<strong>ИмяНабора</strong>. Для работы нужен TELEGRAM_BOT_TOKEN в секретах Supabase.
+        </p>
+        <div className="meme-picker__telegram-row">
+          <input
+            type="text"
+            className="meme-picker__telegram-input"
+            placeholder="Например: CatHappy, FunnyCats"
+            value={telegramPacksInput}
+            onChange={(e) => setTelegramPacksInput(e.target.value)}
+            aria-label="Имена стикерпаков Telegram"
+          />
+          <Button type="button" variant="secondary" onClick={handleSaveTelegramPacks}>
+            {telegramPacksSaved ? 'Сохранено' : 'Сохранить'}
+          </Button>
+        </div>
+      </div>
 
       <div className="meme-picker__actions">
         <Button

@@ -9,15 +9,67 @@ import { declineName } from '../utils/nameDeclension';
 const MIN_VARIANTS = 5;
 
 /**
- * Собирает не менее 5 вариантов поздравления с правильным склонением имён, без лишнего текста, с разным тоном.
+ * Стандартные поздравления без персонализации: только имя, повод и тон.
+ */
+function buildGenericVariants(name, nameDat, nameAcc, occasionLower, toneKey) {
+  const genericByTone = {
+    touching: [
+      `${name}, с ${occasionLower}! Желаю ${nameDat} тепла, радости и самых близких людей рядом.`,
+      `Поздравляю ${nameAcc}! С ${occasionLower}! Пусть в жизни будет больше счастливых моментов.`,
+      `${nameDat} — только хорошее в этот день. С праздником от всего сердца!`,
+      `${name}, с ${occasionLower}! Желаю ${nameDat} здоровья, счастья и душевного спокойствия.`,
+      `${nameDat} в этот день желаю самого светлого. С ${occasionLower}!`,
+    ],
+    ironic: [
+      `${name}, с ${occasionLower}! Пусть год будет хоть чуть менее хаотичным. Хотя бы на один день.`,
+      `Поздравляю ${nameAcc}! С праздником! Желаю поводов для смеха, а не для слёз.`,
+      `${name}, с ${occasionLower}! Держи марку и в этом году.`,
+      `${nameDat} — законный повод ничего не делать. С праздником!`,
+      `${name}, с днём рождения тебя! Пусть жизнь подкидывает только приятные сюрпризы.`,
+    ],
+    formal: [
+      `Уважаем${name.endsWith('а') || name.endsWith('я') ? 'ая' : 'ый'} ${name}! Позвольте поздравить Вас с ${occasionLower}. Желаю благополучия и успехов.`,
+      `С ${occasionLower}, ${name}! Искренне желаю ${nameDat} здоровья, благополучия и всего наилучшего.`,
+      `${name}, примите поздравления с ${occasionLower}. Всего доброго в этот день и в наступающем году.`,
+      `${name}, поздравляю с ${occasionLower}. Желаю процветания и удачи во всех начинаниях.`,
+      `${name}, с праздником. Всего доброго.`,
+    ],
+    epic: [
+      `${name}, с ${occasionLower}! Пусть грядёт год побед и незабываемых моментов!`,
+      `${name}! В этот великий день — день ${occasionLower} — пусть судьба благоволит тебе!`,
+      `${nameDat} — огонь! С ${occasionLower}! Пусть этот год будет легендарным!`,
+      `${name}, поздравляю! Пусть мечты сбываются, вперёд к новым вершинам! С праздником!`,
+      `${name}, с ${occasionLower}! Ты заслуживаешь самого лучшего!`,
+    ],
+    verse: [
+      `${name}, с праздником, с ${occasionLower}!\nЖелаю радости, тепла,\nЧтоб жизнь тебе везла-везла\nИ счастье в дом твой привела.`,
+      `${nameDat} — ура в этот день!\nС ${occasionLower} тебя!\nПусть будет светлой жизнь твоя\nИ полной добрых дел, друзья.`,
+      `С ${occasionLower}, ${name}!\nУдачи, счастья и побед,\nПусть будет радостным твой год,\nМечты сбываются — вперёд!`,
+      `${name}, с ${occasionLower}!\nЖелаю счастья и добра,\nПусть будет полной до краёв\nТвоя душевная пора.`,
+      `Тебя, ${name}, поздравляем —\nС ${occasionLower} от души!\nБудь счастлив и хорош.`,
+    ],
+  };
+  const list = genericByTone[toneKey] || genericByTone.touching;
+  return list.slice(0, MIN_VARIANTS);
+}
+
+/**
+ * Собирает не менее 5 вариантов поздравления. Если в контакте нет доп. инфы — только имя, повод и тон (стандартные).
  */
 function buildStubFromDossier(dossier, toneId, occasion = 'День рождения') {
   const name = dossier.name?.trim() || 'друг';
   const nameDat = declineName(name, 'dative');
   const nameAcc = declineName(name, 'accusative');
   const toneKey = toneId || 'touching';
-  const role = dossier.role ? getRoleById(dossier.role)?.name : null;
   const occasionLower = occasion.toLowerCase();
+
+  const hasPersonalInfo = [dossier.hobbies, dossier.dreams, dossier.jokes, dossier.memories, dossier.tastes]
+    .some((v) => v != null && String(v).trim() !== '');
+  if (!hasPersonalInfo) {
+    return buildGenericVariants(name, nameDat, nameAcc, occasionLower, toneKey);
+  }
+
+  const role = dossier.role ? getRoleById(dossier.role)?.name : null;
   const variants = [];
   const generic = [
     `${name}, с ${occasionLower}! Желаю ${nameDat} всего доброго.`,
@@ -158,6 +210,27 @@ export async function getGiftSuggestionsFromAI(dossier, occasion = '') {
     if (error) return null;
     const ideas = Array.isArray(data?.ideas) ? data.ideas.slice(0, 5) : [];
     return ideas.length > 0 ? ideas : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Случайный стикер из указанных стикерпаков Telegram.
+ * Нужен TELEGRAM_BOT_TOKEN в Supabase и имена наборов (из t.me/addstickers/ИмяНабора).
+ * @param {string[]} packNames — имена стикерпаков, например ['CatHappy', 'FunnyCats']
+ * @returns {Promise<{ url: string, title: string } | null>}
+ */
+export async function getRandomTelegramSticker(packNames) {
+  if (!Array.isArray(packNames) || packNames.length === 0) return null;
+  const supabase = (await import('./supabase')).supabase;
+  if (!supabase?.functions) return null;
+  try {
+    const { data, error } = await supabase.functions.invoke('get-telegram-sticker', {
+      body: { packNames },
+    });
+    if (error || !data?.url) return null;
+    return { url: data.url, title: data.title ?? 'Стикер', postLink: '' };
   } catch {
     return null;
   }

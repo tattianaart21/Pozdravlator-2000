@@ -34,19 +34,47 @@ const ROLES: Record<string, string> = {
 
 const SYSTEM_MESSAGE = `Ты — опытный автор персонализированных поздравлений. Твои тексты короткие и опираются только на факты о человеке. Ты мастерски склоняешь имена по падежам. Не используешь шаблонные фразы без связи с досье. Критически важно: все 5 вариантов должны быть РАЗНЫМИ по структуре, началу и содержанию — разная длина, разное первое предложение, разный акцент (воспоминания / мечты / хобби / вкусы / роль). Запрещено повторять одну и ту же формулировку или конструкцию.`;
 
+function hasPersonalInfo(dossier: Record<string, unknown>): boolean {
+  const fields = ['hobbies', 'dreams', 'jokes', 'memories', 'tastes'];
+  return fields.some((f) => {
+    const v = dossier[f];
+    return v != null && String(v).trim() !== '';
+  });
+}
+
+function buildPromptGeneric(name: string, toneId: string, occasion: string): string {
+  const toneName = TONES[toneId] ?? 'Трогательный';
+  const toneInstruction = TONE_INSTRUCTIONS[toneId] ?? TONE_INSTRUCTIONS.touching;
+  return [
+    'Досье пустое — нет хобби, мечт, воспоминаний и т.д. Сгенерируй 5 СТАНДАРТНЫХ поздравлений БЕЗ персонализации.',
+    'Используй ТОЛЬКО: имя получателя, повод и тон. Не придумывай факты о человеке.',
+    '',
+    `Имя (в именительном падеже): ${name}.`,
+    `Повод: ${occasion}.`,
+    `Тон: ${toneName}. ${toneInstruction}`,
+    '',
+    'Правила: склоняй имя по падежам («Поздравляю Машу», «Маше желаю», «Маша, с днём рождения»). 5 разных вариантов по структуре и началу. Без нумерации, по одному на строку.',
+  ].join('\n');
+}
+
 function buildPrompt(
   dossier: Record<string, unknown>,
   toneId: string,
   occasion: string,
   eventInfo?: { daysUntil?: number; eventDate?: string } | null
 ): string {
+  const name = (dossier.name != null ? String(dossier.name).trim() : '') || 'друг';
+  if (!hasPersonalInfo(dossier)) {
+    return buildPromptGeneric(name, toneId, occasion);
+  }
+
   const toneName = TONES[toneId] ?? 'Трогательный';
   const toneInstruction = TONE_INSTRUCTIONS[toneId] ?? TONE_INSTRUCTIONS.touching;
 
   const parts = [
     'Сгенерируй ровно 5 разных вариантов поздравления.',
     `Повод: ${occasion}.`,
-    `Имя получателя (в именительном падеже): ${dossier.name ?? 'друг'}.`,
+    `Имя получателя (в именительном падеже): ${name}.`,
   ];
   if (eventInfo?.daysUntil != null) {
     parts.push(`Событие через ${eventInfo.daysUntil} дн.${eventInfo.eventDate ? ` (дата: ${eventInfo.eventDate})` : ''}.`);
@@ -105,7 +133,8 @@ Deno.serve(async (req) => {
 
   try {
     const { dossier, toneId, occasion = 'День рождения', eventInfo = null } = await req.json();
-    if (!dossier?.name) {
+    const name = dossier?.name != null ? String(dossier.name).trim() : '';
+    if (!name) {
       return new Response(JSON.stringify({ error: 'dossier.name required' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
