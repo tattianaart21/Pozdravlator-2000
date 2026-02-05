@@ -214,24 +214,3 @@ export async function getGiftSuggestionsFromAI(dossier, occasion = '') {
     return null;
   }
 }
-
-/**
- * Случайный стикер из указанных стикерпаков Telegram.
- * Нужен TELEGRAM_BOT_TOKEN в Supabase и имена наборов (из t.me/addstickers/ИмяНабора).
- * @param {string[]} packNames — имена стикерпаков, например ['CatHappy', 'FunnyCats']
- * @returns {Promise<{ url: string, title: string } | null>}
- */
-export async function getRandomTelegramSticker(packNames) {
-  if (!Array.isArray(packNames) || packNames.length === 0) return null;
-  const supabase = (await import('./supabase')).supabase;
-  if (!supabase?.functions) return null;
-  try {
-    const { data, error } = await supabase.functions.invoke('get-telegram-sticker', {
-      body: { packNames },
-    });
-    if (error || !data?.url) return null;
-    return { url: data.url, title: data.title ?? 'Стикер', postLink: '' };
-  } catch {
-    return null;
-  }
-}
