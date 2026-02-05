@@ -34,9 +34,9 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
   useEffect(() => {
     if (initialContact) {
       let rawBirth = initialContact.birthDate ?? '';
-      const birthYearUnknown = rawBirth.startsWith('1000-') || rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-');
-      if (rawBirth.length >= 10 && (rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-')))
-        rawBirth = '1000-' + rawBirth.slice(5);
+      const birthYearUnknown = Boolean(initialContact.birthYearUnknown) || rawBirth.startsWith('1000-') || rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-');
+      if (rawBirth.length >= 10 && (rawBirth.startsWith('1000-') || rawBirth.startsWith('0004-') || rawBirth.startsWith('0000-')))
+        rawBirth = new Date().getFullYear() + '-' + rawBirth.slice(5);
       /* eslint-disable react-hooks/set-state-in-effect -- синхронизация формы с контактом */
       setForm({
         name: initialContact.name ?? '',
@@ -59,23 +59,9 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
   const handleChange = (e) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
-      const checked = e.target.checked;
-      setForm((prev) => {
-        const next = { ...prev, [name]: checked };
-        if (name === 'birthYearUnknown' && prev.birthDate && prev.birthDate.length >= 10) {
-          const monthDay = prev.birthDate.slice(5); // "MM-DD"
-          if (checked) next.birthDate = '1000-' + monthDay;
-          else next.birthDate = new Date().getFullYear() + '-' + monthDay;
-        }
-        return next;
-      });
+      setForm((prev) => ({ ...prev, [name]: e.target.checked }));
     } else {
-      setForm((prev) => {
-        const next = { ...prev, [name]: value };
-        if (name === 'birthDate' && prev.birthYearUnknown && value && value.length >= 10)
-          next.birthDate = '1000-' + value.slice(5);
-        return next;
-      });
+      setForm((prev) => ({ ...prev, [name]: value }));
     }
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
@@ -107,14 +93,11 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
         date: e.date,
       }));
 
-    const birthDate = form.birthYearUnknown && form.birthDate && form.birthDate.length >= 10
-      ? '1000-' + form.birthDate.slice(5)
-      : form.birthDate;
-
     const dossier = {
       ...(contactId && { id: contactId }),
       name: form.name.trim(),
-      birthDate,
+      birthDate: form.birthDate,
+      ...(form.birthYearUnknown && { birthYearUnknown: true }),
       role: form.role,
       defaultTone: form.defaultTone,
       hobbies: form.hobbies.trim() || undefined,

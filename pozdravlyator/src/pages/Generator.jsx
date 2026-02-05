@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
 import { getUpcomingEventsForContact } from '../utils/dateUtils';
 import { TONES } from '../constants/tones';
@@ -17,10 +17,12 @@ import './Generator.css';
 export function Generator() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { contacts, getContact, addCongratulation } = useApp();
   const state = location.state || {};
+  const contactIdFromUrl = searchParams.get('contactId');
 
-  const [contactId, setContactId] = useState(state.contactId ?? '');
+  const [contactId, setContactId] = useState(state.contactId ?? contactIdFromUrl ?? '');
   const [toneId, setToneId] = useState('');
   const [occasionId, setOccasionId] = useState(state.occasionId ?? 'birthday');
   const [occasionCustomName, setOccasionCustomName] = useState(state.occasionCustomName ?? '');

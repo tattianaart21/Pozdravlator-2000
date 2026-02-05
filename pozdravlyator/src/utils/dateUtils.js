@@ -5,6 +5,25 @@ import { getOccasionName } from '../constants/occasions';
 export const EVENT_TYPES = { birthday: 'birthday', anniversary: 'anniversary', custom: 'custom' };
 
 /**
+ * Парсит дату YYYY-MM-DD как календарную (без сдвига по часовым поясам).
+ * parseISO трактует строку как UTC, из-за чего в части часовых поясов день сдвигается на 1.
+ */
+function parseLocalDate(dateStr) {
+  if (!dateStr || dateStr.length < 10) return null;
+  const parts = dateStr.split('-').map(Number);
+  if (parts.length < 3 || parts.some(Number.isNaN)) return null;
+  return { year: parts[0], month: parts[1] - 1, day: parts[2] };
+}
+
+/** YYYY-MM-DD в локальной дате (без сдвига UTC) */
+function formatLocalDate(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
  * Форматирует дату для отображения
  */
 export function formatDate(date, options = {}) {
@@ -27,10 +46,11 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
   const endDate = addYears(fromDate, 1);
 
   for (const contact of contacts) {
-    // День рождения (дата может быть 0004-MM-DD если год неизвестен — используем только месяц и день, год fromDate)
+    // День рождения — парсим как локальную дату, чтобы не было сдвига на день из-за UTC
     if (contact.birthDate) {
-      const birth = parseISO(contact.birthDate);
-      let eventDate = new Date(fromDate.getFullYear(), birth.getMonth(), birth.getDate());
+      const birth = parseLocalDate(contact.birthDate);
+      if (!birth) continue;
+      let eventDate = new Date(fromDate.getFullYear(), birth.month, birth.day);
 
       if (isBefore(eventDate, startOfDay(fromDate))) {
         eventDate = addYears(eventDate, 1);
@@ -43,7 +63,7 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
             id: `ev-${contact.id}-birthday-${eventDate.getTime()}`,
             contactId: contact.id,
             contact,
-            date: eventDate.toISOString().slice(0, 10),
+            date: formatLocalDate(eventDate),
             type: EVENT_TYPES.birthday,
             occasionId: 'birthday',
             occasionName: 'День рождения',
@@ -53,18 +73,13 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
       }
     }
 
-    // Другие памятные даты (годовщина, своя) — повторяются каждый год (месяц и день из ev.date, год — fromDate)
+    // Другие памятные даты — парсим как локальную дату
     const contactEvents = contact.events ?? [];
     for (const ev of contactEvents) {
       if (!ev.date) continue;
-      let evDate;
-      try {
-        evDate = parseISO(ev.date);
-        if (Number.isNaN(evDate.getTime())) continue;
-      } catch {
-        continue;
-      }
-      let eventDate = new Date(fromDate.getFullYear(), evDate.getMonth(), evDate.getDate());
+      const evDate = parseLocalDate(ev.date);
+      if (!evDate) continue;
+      let eventDate = new Date(fromDate.getFullYear(), evDate.month, evDate.day);
 
       if (isBefore(eventDate, startOfDay(fromDate))) {
         eventDate = addYears(eventDate, 1);
@@ -78,7 +93,7 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
             id: ev.id ? `ev-${contact.id}-${ev.id}` : `ev-${contact.id}-${ev.date}-${eventDate.getTime()}`,
             contactId: contact.id,
             contact,
-            date: eventDate.toISOString().slice(0, 10),
+            date: formatLocalDate(eventDate),
             type: ev.type === 'anniversary' ? EVENT_TYPES.anniversary : EVENT_TYPES.custom,
             occasionId: ev.type,
             occasionName,
@@ -91,6 +106,20 @@ export function getUpcomingEvents(contacts, fromDate = new Date(), limitDays = 6
 
   events.sort((a, b) => new Date(a.date) - new Date(b.date));
   return events;
+}
+
+/**
+ * Следующая дата наступления события по строке YYYY-MM-DD (год игнорируется для расчёта).
+ * @param {string} dateStr — YYYY-MM-DD
+ * @returns {string} YYYY-MM-DD следующего наступления в локальной дате
+ */
+export function getNextOccurrenceDate(dateStr) {
+  const parsed = parseLocalDate(dateStr);
+  if (!parsed) return '';
+  const today = startOfDay(new Date());
+  let next = new Date(today.getFullYear(), parsed.month, parsed.day);
+  if (isBefore(next, today)) next = new Date(today.getFullYear() + 1, parsed.month, parsed.day);
+  return formatLocalDate(next);
 }
 
 /**
@@ -117,15 +146,16 @@ export function getPastEvents(contacts, beforeDate = new Date(), limit = 60) {
 
   for (const contact of contacts) {
     if (contact.birthDate) {
-      const birth = parseISO(contact.birthDate);
-      const eventDate = new Date(startOfBefore.getFullYear(), birth.getMonth(), birth.getDate());
+      const birth = parseLocalDate(contact.birthDate);
+      if (!birth) continue;
+      const eventDate = new Date(startOfBefore.getFullYear(), birth.month, birth.day);
       if (isBefore(eventDate, startOfBefore) && !isBefore(eventDate, startOfYear)) {
         const daysAgo = Math.ceil((startOfBefore - eventDate) / (24 * 60 * 60 * 1000));
         events.push({
           id: `past-${contact.id}-birthday-${eventDate.getTime()}`,
           contactId: contact.id,
           contact,
-          date: eventDate.toISOString().slice(0, 10),
+          date: formatLocalDate(eventDate),
           type: EVENT_TYPES.birthday,
           occasionName: 'День рождения',
           daysAgo,
@@ -135,25 +165,21 @@ export function getPastEvents(contacts, beforeDate = new Date(), limit = 60) {
     const contactEvents = contact.events ?? [];
     for (const ev of contactEvents) {
       if (!ev.date) continue;
-      try {
-        const evDate = parseISO(ev.date);
-        if (Number.isNaN(evDate.getTime())) continue;
-        const eventDate = new Date(startOfBefore.getFullYear(), evDate.getMonth(), evDate.getDate());
-        if (isBefore(eventDate, startOfBefore) && !isBefore(eventDate, startOfYear)) {
-          const daysAgo = Math.ceil((startOfBefore - eventDate) / (24 * 60 * 60 * 1000));
-          const occasionName = getOccasionName(ev.type, ev.name);
-          events.push({
+      const evDate = parseLocalDate(ev.date);
+      if (!evDate) continue;
+      const eventDate = new Date(startOfBefore.getFullYear(), evDate.month, evDate.day);
+      if (isBefore(eventDate, startOfBefore) && !isBefore(eventDate, startOfYear)) {
+        const daysAgo = Math.ceil((startOfBefore - eventDate) / (24 * 60 * 60 * 1000));
+        const occasionName = getOccasionName(ev.type, ev.name);
+        events.push({
             id: `past-${contact.id}-${ev.id}-${eventDate.getTime()}`,
             contactId: contact.id,
             contact,
-            date: eventDate.toISOString().slice(0, 10),
-            type: ev.type === 'anniversary' ? EVENT_TYPES.anniversary : EVENT_TYPES.custom,
-            occasionName,
-            daysAgo,
-          });
-        }
-      } catch {
-        // skip
+            date: formatLocalDate(eventDate),
+          type: ev.type === 'anniversary' ? EVENT_TYPES.anniversary : EVENT_TYPES.custom,
+          occasionName,
+          daysAgo,
+        });
       }
     }
   }

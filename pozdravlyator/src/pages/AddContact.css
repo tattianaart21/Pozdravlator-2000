@@ -132,6 +132,27 @@
   color: var(--color-text-secondary);
 }
 
+.modal__link {
+  display: inline-block;
+  padding: var(--space-s) var(--space-m);
+  background: var(--color-primary);
+  color: #fff;
+  border-radius: var(--radius);
+  text-decoration: none;
+  font-weight: 500;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.modal__link:hover {
+  opacity: 0.9;
+  color: #fff;
+}
+
+.modal__btn {
+  margin-top: var(--space-s);
+}
+
 @media (min-width: 768px) {
   .add-contact {
     padding-bottom: var(--space-l);
