@@ -1,0 +1,8 @@
+{
+  "buildCommand": "cd pozdravlyator && npm install && npm run build",
+  "outputDirectory": "pozdravlyator/dist",
+  "installCommand": "cd pozdravlyator && npm install",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
