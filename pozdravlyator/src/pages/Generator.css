@@ -15,6 +15,16 @@
   margin: 0 0 var(--space-s) 0;
 }
 
+.generator__api-error {
+  margin: 0 0 var(--space-s) 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  background: rgba(var(--color-primary-rgb), 0.08);
+  padding: var(--space-s) var(--space-m);
+  border-radius: var(--radius);
+  border-left: 3px solid var(--color-primary);
+}
+
 .generator__variants {
   display: flex;
   flex-direction: column;

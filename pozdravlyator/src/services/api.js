@@ -125,17 +125,19 @@ export async function generateCongratulation(dossier, toneId, occasion = 'Ден
       if (import.meta.env.DEV && texts.length) {
         console.log('[Генерация] Получено от ИИ вариантов:', texts.length, '— первый:', texts[0]?.slice(0, 50) + '…');
       }
-      return texts;
+      return { texts, fromStub: false };
     } catch (err) {
       if (import.meta.env.DEV) {
         console.warn('[Генерация] Ошибка ИИ, используем локальную генерацию:', err?.message || err);
       }
+      const stubTexts = buildStubFromDossier(dossier, toneId, occasion);
+      return { texts: stubTexts, fromStub: true, apiError: err?.message || (err?.context?.body?.error) || String(err) };
     }
   } else if (import.meta.env.DEV) {
     console.warn('[Генерация] Supabase не настроен — локальная генерация');
   }
 
-  return Promise.resolve(buildStubFromDossier(dossier, toneId, occasion));
+  return Promise.resolve({ texts: buildStubFromDossier(dossier, toneId, occasion), fromStub: true });
 }
 
 /**

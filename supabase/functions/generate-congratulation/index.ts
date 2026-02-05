@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
       temperature: 0.95,
     };
 
-    const res = await fetch(chatUrl, {
+    let res = await fetch(chatUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -143,10 +143,29 @@ Deno.serve(async (req) => {
       body: JSON.stringify(body),
     });
 
+    // Обработка 300 (Multiple Choices) и других 3xx: один редирект по Location
+    if (res.status >= 300 && res.status < 400) {
+      const location = res.headers.get('Location');
+      if (location) {
+        const redirectUrl = location.startsWith('http') ? location : new URL(location, chatUrl).href;
+        res = await fetch(redirectUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(body),
+        });
+      }
+    }
+
     if (!res.ok) {
       const err = await res.text();
+      const message = res.status === 300
+        ? 'Сервис ИИ вернул перенаправление (300). Попробуйте позже или проверьте настройки API.'
+        : `AI API error: ${res.status}`;
       return new Response(
-        JSON.stringify({ error: `AI API error: ${res.status}`, details: err }),
+        JSON.stringify({ error: message, details: err }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

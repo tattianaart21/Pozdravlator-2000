@@ -31,9 +31,18 @@ function fetchWithTimeout(url) {
 
 /**
  * Один мем с Reddit (meme-api.com).
+ * При 300/3xx делаем один запрос по Location, если есть.
  */
 async function fetchOneFromSubreddit(subreddit) {
-  const res = await fetchWithTimeout(`${MEME_API_BASE}/${subreddit}`);
+  const baseUrl = `${MEME_API_BASE}/${subreddit}`;
+  let res = await fetchWithTimeout(baseUrl);
+  if (res.status >= 300 && res.status < 400) {
+    const location = res.headers?.get('Location');
+    if (location) {
+      const redirectUrl = location.startsWith('http') ? location : new URL(location, baseUrl).href;
+      res = await fetchWithTimeout(redirectUrl);
+    }
+  }
   if (!res.ok) return null;
   const data = await res.json();
   const url = data?.url;
