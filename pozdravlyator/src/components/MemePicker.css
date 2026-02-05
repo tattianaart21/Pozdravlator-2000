@@ -67,9 +67,23 @@
 }
 
 .meme-picker__preview {
+  position: relative;
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--color-border);
+  min-height: 120px;
+}
+
+.meme-picker__preview-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  z-index: 1;
 }
 
 .meme-picker__img {

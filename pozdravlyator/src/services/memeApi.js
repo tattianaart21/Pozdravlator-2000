@@ -1,12 +1,12 @@
 /**
- * Картинки к поздравлению: мемные поздравления и котики из интернета.
- * Несколько источников + запасной picsum.photos, чтобы картинка всегда подгружалась.
+ * Картинки к поздравлению: котики, мемы, русскоязычные мемы.
+ * Короткий таймаут и быстрый fallback, чтобы картинки не висели.
  */
 
 const MEME_API_BASE = 'https://meme-api.com/gimme';
-const REQUEST_TIMEOUT_MS = 5000;
+const REQUEST_TIMEOUT_MS = 2500;
 
-/** Сабреддиты: котики и мемные/поздравительные. */
+/** Котики, мемы, поздравления + русский сектор (Пикабу и др.). */
 const MEME_STICKER_SUBREDDITS = [
   'cats',
   'aww',
@@ -14,6 +14,10 @@ const MEME_STICKER_SUBREDDITS = [
   'wholesomememes',
   'memes',
   'MadeMeSmile',
+  'Pikabu',
+  'Epicentr',
+  'russia',
+  'dankmemes',
 ];
 
 /**
@@ -46,16 +50,16 @@ function getRandomCatUrl() {
 
 /**
  * Возвращает одну случайную картинку: { url, title, postLink }.
- * Порядок: Reddit мемы/котики → cataas котики → picsum.
+ * Одна быстрая попытка Reddit (2.5 с), иначе сразу котик cataas — без долгого ожидания.
  */
 export async function fetchRandomMeme(_options = {}) {
   const subreddits = [...MEME_STICKER_SUBREDDITS].sort(() => Math.random() - 0.5);
-  for (let i = 0; i < Math.min(3, subreddits.length); i++) {
+  for (let i = 0; i < Math.min(2, subreddits.length); i++) {
     try {
       const result = await fetchOneFromSubreddit(subreddits[i]);
       if (result) return result;
     } catch {
-      /* пробуем следующий источник */
+      /* сразу следующий источник */
     }
   }
 

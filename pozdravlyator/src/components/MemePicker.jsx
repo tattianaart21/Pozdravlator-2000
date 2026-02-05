@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
 import { fetchRandomMeme, getFallbackImageUrl } from '../services/memeApi';
 import { Button } from './Button';
@@ -16,6 +16,7 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const [loadedList, setLoadedList] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [loading, setLoading] = useState(false);
+  const [imgLoading, setImgLoading] = useState(true);
   const [error, setError] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -25,6 +26,7 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
     try {
       const data = await fetchRandomMeme({ toneId, contact });
       if (data) {
+        setImgLoading(true);
         setLoadedList((prev) => {
           const next = [...prev, { url: data.url }];
           setCurrentIndex(next.length - 1);
@@ -73,6 +75,10 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
   const currentMeme = currentIndex >= 0 && loadedList[currentIndex] ? loadedList[currentIndex].url : null;
   const displayUrl = selectedUrl || currentMeme;
   const canGoPrevious = currentIndex > 0;
+
+  useEffect(() => {
+    if (displayUrl) setImgLoading(true);
+  }, [displayUrl]);
   const canGoNext = currentIndex >= 0 && currentIndex < loadedList.length - 1;
 
   return (
@@ -146,10 +152,17 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
       {error && <p className="meme-picker__error" role="alert">{error}</p>}
       {displayUrl && (
         <div className="meme-picker__preview">
+          {imgLoading && (
+            <div className="meme-picker__preview-loading" aria-hidden>
+              Загрузка…
+            </div>
+          )}
           <img
             src={displayUrl}
             alt="Стикер к поздравлению"
             className="meme-picker__img"
+            decoding="async"
+            onLoad={() => setImgLoading(false)}
             onError={(e) => {
               const failed = e.target.src;
               const fallback = getFallbackImageUrl();
@@ -157,6 +170,7 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
                 e.target.src = fallback;
                 replaceUrlWithFallback(displayUrl);
               }
+              setImgLoading(false);
             }}
           />
         </div>
