@@ -191,11 +191,6 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
               max={form.birthYearUnknown ? undefined : todayISO}
               required
             />
-            {form.birthYearUnknown && (
-              <p className="add-contact__hint add-contact__hint--small">
-                Под капотом подставлен текущий год для календаря; напоминание будет в этот день и месяц каждый год.
-              </p>
-            )}
           </div>
           <div className="input-group">
             <label className="input-group__label">Роль / статус</label>
@@ -256,7 +251,6 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
 
         <Card className="add-contact__card">
           <h2 className="add-contact__section-title">Досье (чем больше — тем персонализированнее поздравления)</h2>
-          <p className="add-contact__hint">До {DOSSIER_FIELD_MAX_LENGTH} символов в каждом поле — чтобы не перегружать контекст ИИ.</p>
           <Textarea label="Хобби" name="hobbies" value={form.hobbies} onChange={handleChange} placeholder="Спорт, музыка, путешествия..." maxLength={DOSSIER_FIELD_MAX_LENGTH} />
           <span className="add-contact__char-count">{form.hobbies.length}/{DOSSIER_FIELD_MAX_LENGTH}</span>
           <Textarea label="Мечты" name="dreams" value={form.dreams} onChange={handleChange} placeholder="О чём мечтает?" maxLength={DOSSIER_FIELD_MAX_LENGTH} />

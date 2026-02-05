@@ -12,7 +12,6 @@ const MEME_STICKER_SUBREDDITS = [
   'aww',
   'rarepuppers',
   'catpictures',
-  'FromKittenToCat',
   'duck',
   'CatsWithDogs',
   'wholesomememes',
@@ -33,7 +32,6 @@ const STICKER_STYLE_SUBREDDITS = [
   'MadeMeSmile',
   'wholesomememes',
   'catpictures',
-  'FromKittenToCat',
 ];
 
 /** Субреддиты под тон «гик» / шуточный: мемы по вселенным */
@@ -54,7 +52,7 @@ const INTEREST_SUBREDDITS = {
   кофе: ['coffee', 'cafe', 'espresso', 'CozyPlaces'],
   путешествия: ['travel', 'EarthPorn', 'backpacking', 'roadtrip'],
   природа: ['NatureIsFuckingLit', 'EarthPorn', 'Outdoors', 'camping'],
-  животные: ['cats', 'aww', 'rarepuppers', 'duck', 'CatsWithDogs', 'FromKittenToCat'],
+  животные: ['cats', 'aww', 'rarepuppers', 'duck', 'CatsWithDogs'],
   еда: ['FoodPorn', 'cooking', 'Baking', 'vegetarian'],
   сад: ['gardening', 'plants', 'succulents', 'houseplants'],
   спорт: ['sports', 'running', 'yoga', 'fitness'],
@@ -108,6 +106,9 @@ export function getContextualSubreddits(toneId, contact = null) {
  * Возвращает одну случайную картинку: { url, title, postLink } или null.
  * @param {{ toneId?: string, contact?: { hobbies?, tastes?, role? } }} options — тон и контакт для контекстного подбора (гик → мемы по вселенным).
  */
+/** Таймаут запроса к meme-api (могут быть блокировки/задержки) */
+const MEME_FETCH_TIMEOUT_MS = 8000;
+
 export async function fetchRandomMeme(options = {}) {
   const { toneId, contact } = options;
   const subreddits = toneId || contact
@@ -115,8 +116,11 @@ export async function fetchRandomMeme(options = {}) {
     : MEME_STICKER_SUBREDDITS;
   try {
     const sub = subreddits[Math.floor(Math.random() * subreddits.length)];
-    const res = await fetch(`${MEME_API}/${sub}`);
-    if (!res.ok) return null;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), MEME_FETCH_TIMEOUT_MS);
+    const res = await fetch(`${MEME_API}/${sub}`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (!res.ok) return fallbackImage();
     const data = await res.json();
     return {
       url: data.url,
@@ -124,8 +128,16 @@ export async function fetchRandomMeme(options = {}) {
       postLink: data.postLink,
     };
   } catch {
-    return null;
+    return fallbackImage();
   }
+}
+
+function fallbackImage() {
+  return {
+    url: getRandomImageUrl('congrats'),
+    title: '',
+    postLink: '',
+  };
 }
 
 /**
