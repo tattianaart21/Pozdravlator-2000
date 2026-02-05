@@ -1,28 +1,23 @@
 /**
- * Картинки к поздравлению: мемные поздравления и котики из интернета (Reddit API).
- * При таймауте или ошибке — запасной вариант: picsum.photos.
+ * Картинки к поздравлению: мемные поздравления и котики из интернета.
+ * Несколько источников + запасной picsum.photos, чтобы картинка всегда подгружалась.
  */
 
 const MEME_API_BASE = 'https://meme-api.com/gimme';
-const REQUEST_TIMEOUT_MS = 8000;
+const REQUEST_TIMEOUT_MS = 5000;
 
 /** Сабреддиты: котики и мемные/поздравительные. */
 const MEME_STICKER_SUBREDDITS = [
   'cats',
   'aww',
   'catpictures',
-  'CatsWithDogs',
   'wholesomememes',
   'memes',
-  'dankmemes',
   'MadeMeSmile',
-  'CongratsLikeIm5',
 ];
 
 /**
- * Запрос к API с таймаутом.
- * @param {string} url
- * @returns {Promise<Response>}
+ * Запрос с таймаутом.
  */
 function fetchWithTimeout(url) {
   const controller = new AbortController();
@@ -31,9 +26,7 @@ function fetchWithTimeout(url) {
 }
 
 /**
- * Пытается получить один мем по сабреддиту.
- * @param {string} subreddit
- * @returns {Promise<{ url: string, title: string, postLink: string } | null>}
+ * Один мем с Reddit (meme-api.com).
  */
 async function fetchOneFromSubreddit(subreddit) {
   const res = await fetchWithTimeout(`${MEME_API_BASE}/${subreddit}`);
@@ -43,34 +36,41 @@ async function fetchOneFromSubreddit(subreddit) {
   if (!url || typeof url !== 'string') return null;
   const isImage = /\.(jpe?g|png|gif|webp)$/i.test(url) || /\.(jpe?g|png|gif|webp)\?/i.test(url);
   if (!isImage) return null;
-  return {
-    url,
-    title: data?.title ?? '',
-    postLink: data?.postLink ?? '',
-  };
+  return { url, title: data?.title ?? '', postLink: data?.postLink ?? '' };
+}
+
+/** URL случайного котика (cataas.com отдаёт картинку по этому адресу). */
+function getRandomCatUrl() {
+  return `https://cataas.com/cat?t=${Date.now()}`;
 }
 
 /**
  * Возвращает одну случайную картинку: { url, title, postLink }.
- * Сначала пробует мемы/котики из Reddit, при неудаче — picsum.photos.
+ * Порядок: Reddit мемы/котики → cataas котики → picsum.
  */
 export async function fetchRandomMeme(_options = {}) {
   const subreddits = [...MEME_STICKER_SUBREDDITS].sort(() => Math.random() - 0.5);
-
   for (let i = 0; i < Math.min(3, subreddits.length); i++) {
     try {
       const result = await fetchOneFromSubreddit(subreddits[i]);
       if (result) return result;
     } catch {
-      // таймаут или ошибка — пробуем следующий сабреддит
+      /* пробуем следующий источник */
     }
   }
 
   return {
-    url: getRandomImageUrl('congrats'),
-    title: '',
+    url: getRandomCatUrl(),
+    title: 'Котик',
     postLink: '',
   };
+}
+
+/**
+ * Запасной URL (picsum), если основная картинка не загрузилась в браузере.
+ */
+export function getFallbackImageUrl() {
+  return getRandomImageUrl('fallback');
 }
 
 export function getContextualSubreddits() {

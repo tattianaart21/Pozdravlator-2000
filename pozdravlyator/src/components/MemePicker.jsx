@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { ChevronLeft, ChevronRight, Upload } from 'lucide-react';
-import { fetchRandomMeme } from '../services/memeApi';
+import { fetchRandomMeme, getFallbackImageUrl } from '../services/memeApi';
 import { Button } from './Button';
 import './MemePicker.css';
 
@@ -61,6 +61,13 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
     };
     reader.readAsDataURL(file);
     e.target.value = '';
+  };
+
+  const replaceUrlWithFallback = (failedUrl) => {
+    const fallback = getFallbackImageUrl();
+    setLoadedList((prev) =>
+      prev.map((item) => (item.url === failedUrl ? { ...item, url: fallback } : item))
+    );
   };
 
   const currentMeme = currentIndex >= 0 && loadedList[currentIndex] ? loadedList[currentIndex].url : null;
@@ -139,7 +146,19 @@ export function MemePicker({ onSelect, selectedUrl, toneId, contact }) {
       {error && <p className="meme-picker__error" role="alert">{error}</p>}
       {displayUrl && (
         <div className="meme-picker__preview">
-          <img src={displayUrl} alt="Стикер к поздравлению" className="meme-picker__img" />
+          <img
+            src={displayUrl}
+            alt="Стикер к поздравлению"
+            className="meme-picker__img"
+            onError={(e) => {
+              const failed = e.target.src;
+              const fallback = getFallbackImageUrl();
+              if (failed !== fallback) {
+                e.target.src = fallback;
+                replaceUrlWithFallback(displayUrl);
+              }
+            }}
+          />
         </div>
       )}
     </div>
