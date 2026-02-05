@@ -53,10 +53,16 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
+  const todayISO = new Date().toISOString().slice(0, 10);
+
   const validate = () => {
     const next = {};
     if (!form.name.trim()) next.name = 'Введите имя';
     if (!form.birthDate) next.birthDate = 'Укажите дату рождения';
+    else if (form.birthDate > todayISO) next.birthDate = 'Дата рождения не может быть в будущем';
+    (form.events ?? []).forEach((ev, i) => {
+      if (ev.date && ev.date > todayISO) next[`eventDate_${i}`] = 'Дата не может быть в будущем';
+    });
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -138,6 +144,7 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
             value={form.birthDate}
             onChange={handleChange}
             error={errors.birthDate}
+            max={todayISO}
             required
           />
           <div className="input-group">
@@ -183,6 +190,7 @@ export function ContactForm({ contactId, initialContact, onSubmit, onDelete, sub
                   type="date"
                   className="input-group__input add-contact__event-date"
                   value={ev.date ?? ''}
+                  max={todayISO}
                   onChange={(e) => updateEvent(index, 'date', e.target.value)}
                 />
                 <Button type="button" variant="ghost" className="add-contact__event-remove" onClick={() => removeEvent(index)} title="Удалить">

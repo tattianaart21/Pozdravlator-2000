@@ -1,0 +1,64 @@
+import { Link } from 'react-router-dom';
+import { useTheme } from '../store/ThemeContext';
+import { Button } from '../components/Button';
+import './Landing.css';
+
+/**
+ * Главная страница для незалогиненных пользователей.
+ * Design DNA: минимализм, сетка, суть ИИ-помощника для тёплых поздравлений.
+ */
+export function Landing() {
+  const { themeId, setThemeId, themes } = useTheme();
+
+  return (
+    <div className="landing">
+      <label className="landing__theme">
+        <span className="landing__theme-label">Тема</span>
+        <select
+          className="landing__theme-select"
+          value={themeId}
+          onChange={(e) => setThemeId(e.target.value)}
+          aria-label="Тема оформления"
+        >
+          {themes.map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
+      </label>
+
+      <div className="landing__grid" aria-hidden="true">
+        <span className="landing__grid-annot landing__grid-annot--1">ДАТЫ</span>
+        <span className="landing__grid-annot landing__grid-annot--2">ДОСЬЕ</span>
+        <span className="landing__grid-annot landing__grid-annot--3">ИИ</span>
+      </div>
+
+      <header className="landing__hero">
+        <h1 className="landing__title">ПОЗДРАВЛЯТОР</h1>
+        <p className="landing__tagline">
+          ИИ для искренних поздравлений. Не забывай даты — генерируй тёплые слова за минуту.
+        </p>
+      </header>
+
+      <section className="landing__content">
+        <p className="landing__desc">
+          Персональный ассистент по тёплым отношениям: досье контактов, календарь событий,
+          генерация текстов под человека и повод. Один сервис — чтобы ни одна важная дата не прошла мимо.
+        </p>
+        <div className="landing__actions">
+          <Link to="/login">
+            <Button variant="primary" className="landing__btn">Войти</Button>
+          </Link>
+          <Link to="/signup">
+            <Button variant="secondary" className="landing__btn">Регистрация</Button>
+          </Link>
+        </div>
+      </section>
+
+      <footer className="landing__footer">
+        <Link to="/login" className="landing__footer-link">Вход</Link>
+        <span className="landing__footer-sep">·</span>
+        <Link to="/signup" className="landing__footer-link">Регистрация</Link>
+      </footer>
+    </div>
+  );
+}

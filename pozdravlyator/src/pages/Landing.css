@@ -1,0 +1,167 @@
+/* Landing — design DNA: минимализм, сетка, суть ИИ-помощника (в духе Letta) */
+.landing {
+  --landing-bg: #e9e9e9;
+  --landing-text: #1a1a1a;
+  --landing-muted: #5c5c5c;
+  --landing-grid: rgba(0, 0, 0, 0.06);
+  --landing-accent: #6366f1;
+  min-height: 100vh;
+  background: var(--landing-bg);
+  color: var(--landing-text);
+  position: relative;
+  padding: var(--space-l, 24px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+}
+
+[data-theme="dark"] .landing {
+  --landing-bg: #1a1d24;
+  --landing-text: #e8ecf1;
+  --landing-muted: #9ca3af;
+  --landing-grid: rgba(255, 255, 255, 0.06);
+}
+
+/* Сетка — технический, структурированный фон */
+.landing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--landing-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--landing-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+}
+
+.landing__theme {
+  position: absolute;
+  top: var(--space-m);
+  right: var(--space-m);
+  display: flex;
+  align-items: center;
+  gap: var(--space-s);
+  z-index: 2;
+}
+
+.landing__theme-label {
+  font-size: 0.75rem;
+  color: var(--landing-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.landing__theme-select {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--landing-grid);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.875rem;
+  color: var(--landing-text);
+  cursor: pointer;
+}
+
+[data-theme="dark"] .landing__theme-select {
+  background: rgba(30, 30, 35, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Аннотации по сетке — технический акцент */
+.landing__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing__grid-annot {
+  position: absolute;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  color: var(--landing-muted);
+  opacity: 0.7;
+}
+
+.landing__grid-annot--1 { top: 18%; left: 12%; }
+.landing__grid-annot--2 { top: 45%; right: 15%; }
+.landing__grid-annot--3 { bottom: 22%; left: 20%; }
+
+/* Hero */
+.landing__hero {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 560px;
+  margin-bottom: var(--space-2xl, 48px);
+}
+
+.landing__title {
+  font-family: var(--font-display, 'Syne', sans-serif);
+  font-size: clamp(2.25rem, 6vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  margin: 0 0 var(--space-m);
+  color: var(--landing-text);
+}
+
+.landing__tagline {
+  font-size: 1.125rem;
+  line-height: 1.5;
+  color: var(--landing-muted);
+  margin: 0;
+}
+
+.landing__content {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  text-align: center;
+}
+
+.landing__desc {
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--landing-muted);
+  margin: 0 0 var(--space-xl);
+}
+
+.landing__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-m);
+  justify-content: center;
+}
+
+.landing__btn {
+  min-width: 140px;
+}
+
+.landing__footer {
+  position: absolute;
+  bottom: var(--space-l);
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 0.875rem;
+  z-index: 1;
+}
+
+.landing__footer-link {
+  color: var(--landing-muted);
+  text-decoration: none;
+}
+
+.landing__footer-link:hover {
+  color: var(--landing-accent);
+  text-decoration: underline;
+}
+
+.landing__footer-sep {
+  margin: 0 var(--space-s);
+  color: var(--landing-muted);
+  opacity: 0.6;
+}

@@ -70,6 +70,8 @@ export default function AppStandalone() {
                 value={form.birthday}
                 onChange={handleChange}
                 className="standalone__input"
+                max={new Date().toISOString().slice(0, 10)}
+                title="Дата не может быть в будущем"
               />
             </label>
             <label className="standalone__label">

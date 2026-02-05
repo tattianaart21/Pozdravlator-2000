@@ -11,6 +11,15 @@ Edge Function по умолчанию использует DeepSeek: доста�
 
 Ключ API хранится в Supabase (Edge Function), в браузере он не светится.
 
+### Как прокидывается API до Perplexity
+
+1. **Фронт** (pozdravlyator) при генерации вызывает `supabase.functions.invoke('generate-congratulation', { body: { dossier, toneId, occasion, eventInfo } })`.
+2. **Edge Function** `generate-congratulation` читает из окружения Supabase секреты: `AI_CHAT_URL`, `AI_API_KEY`, `AI_MODEL`.
+3. Для Perplexity задаются: `AI_CHAT_URL=https://api.perplexity.ai/chat/completions`, `AI_API_KEY=pplx-...`, `AI_MODEL=sonar`.
+4. Функция делает `fetch(chatUrl, { headers: { Authorization: 'Bearer ' + apiKey }, body: ... })` — запрос уходит в Perplexity, ответ парсится и возвращается на фронт.
+
+Проверка цепочки: после установки секретов выполните `node scripts/test-perplexity-request.mjs` из корня проекта.
+
 ---
 
 ## Шаг 1. Деплой Edge Functions
