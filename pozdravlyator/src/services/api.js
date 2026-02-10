@@ -48,6 +48,13 @@ function buildGenericVariants(name, nameDat, nameAcc, occasionLower, toneKey) {
       `${name}, с ${occasionLower}!\nЖелаю счастья и добра,\nПусть будет полной до краёв\nТвоя душевная пора.`,
       `Тебя, ${name}, поздравляем —\nС ${occasionLower} от души!\nБудь счастлив и хорош.`,
     ],
+    kuruch: [
+      `${name}, с ${occasionLower}! Ты тот человек, с которым хочется отмечать всё — так что пусть этот год будет таким же отменным, как ты.`,
+      `Поздравляю ${nameAcc} с ${occasionLower}! Харизмы тебе и так не занимать — желаю, чтобы жизнь подкидывала только те поводы, которые ты заслуживаешь.`,
+      `${name}, с праздником! Пусть дела идут, люди ценят, а настроение — огонь. Ты этого достоин.`,
+      `${nameDat} — только самое лучшее в этот день и дальше. С ${occasionLower}! Пусть всё сходится так, как ты задумал.`,
+      `${name}, с ${occasionLower}! Без лишних слов: ты крут, пусть год будет таким же.`,
+    ],
   };
   const list = genericByTone[toneKey] || genericByTone.touching;
   return list.slice(0, MIN_VARIANTS);
@@ -134,6 +141,15 @@ function buildStubFromDossier(dossier, toneId, occasion = 'День рожден
         variants.push(`Тебя, ${name}, поздравляем —\nНаш ${role}, мы тебя знаем!\nС ${occasionLower} от души!\nБудь счастлив и хорош.`);
       }
       variants.push(`${nameDat} — ура в этот день!\nС ${occasionLower} тебя!\nПусть будет светлой жизнь твоя\nИ полной добрых дел, друзья.`);
+      break;
+    }
+    case 'kuruch': {
+      if (hobbies) variants.push(`${name}, с ${occasionLower}! Человек с таким увлечением, как ${hobbies}, — уже подарок. Пусть год будет таким же отменным.`);
+      if (dreams) variants.push(`${name}, поздравляю! Мечта про ${dreams} — пусть станет явью. Ты того стоишь.`);
+      if (memories) variants.push(`${name}, с праздником! Помним, как мы ${memories} — таких моментов в новом году побольше. Харизмы тебе не занимать.`);
+      if (jokes) variants.push(`${name}, с ${occasionLower}! Как у нас: ${jokes}. Держи марку, пусть год будет огонь.`);
+      variants.push(`${name}, с ${occasionLower}! Без лишних слов — ты крут, пусть всё сходится так, как задумал.`);
+      variants.push(`${nameDat} — только самое лучшее. С праздником от души!`);
       break;
     }
     default: {

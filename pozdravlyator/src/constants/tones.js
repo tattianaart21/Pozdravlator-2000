@@ -5,6 +5,7 @@ export const TONES = [
   { id: 'formal', name: 'Официальный' },
   { id: 'epic', name: 'Эпичный' },
   { id: 'verse', name: 'В стихах' },
+  { id: 'kuruch', name: 'В стиле Ильи Куруча' },
 ];
 
 export const getToneById = (id) => TONES.find((t) => t.id === id) ?? TONES[0];
