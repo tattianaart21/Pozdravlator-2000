@@ -3,6 +3,29 @@ const PREFIX_CONTACTS = 'pozdrav_contacts';
 const PREFIX_CONGRATULATIONS = 'pozdrav_congratulations';
 const LOCAL_SUFFIX = '_local';
 
+function normalizeText(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+function getContactDedupKey(contact) {
+  return [
+    normalizeText(contact?.name),
+    normalizeText(contact?.birthDate),
+    normalizeText(contact?.role),
+    normalizeText(contact?.birthYearUnknown ? '1' : ''),
+  ].join('|');
+}
+
+function dedupeContacts(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : []).filter((contact) => {
+    const key = getContactDedupKey(contact);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function contactsKey(userId) {
   return userId ? `${PREFIX_CONTACTS}_${userId}` : `${PREFIX_CONTACTS}${LOCAL_SUFFIX}`;
 }
@@ -15,7 +38,7 @@ export function loadContacts(userId = null) {
   try {
     const key = contactsKey(userId);
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
+    return dedupeContacts(raw ? JSON.parse(raw) : []);
   } catch {
     return [];
   }
@@ -30,7 +53,7 @@ export function loadContactsWithFallback(userId) {
     if (fromLocal.length > 0) return fromLocal;
     return [];
   }
-  return loadContacts(null);
+  return dedupeContacts(loadContacts(null));
 }
 
 export function saveContacts(contacts, userId = null) {

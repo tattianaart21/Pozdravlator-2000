@@ -4,6 +4,29 @@
  */
 import { supabase } from './supabase';
 
+function normalizeText(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+function getContactDedupKey(contact) {
+  return [
+    normalizeText(contact?.name),
+    normalizeText(contact?.birthDate),
+    normalizeText(contact?.role),
+    normalizeText(contact?.birthYearUnknown ? '1' : ''),
+  ].join('|');
+}
+
+function dedupeContacts(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : []).filter((contact) => {
+    const key = getContactDedupKey(contact);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export async function loadContactsFromSupabase(userId) {
   if (!supabase || !userId) return null;
   try {
@@ -23,8 +46,9 @@ export async function saveContactsToSupabase(userId, contacts) {
   if (!supabase || !userId || !Array.isArray(contacts)) return false;
   try {
     await supabase.from('pozdrav_contacts').delete().eq('user_id', userId);
-    if (contacts.length === 0) return true;
-    const rows = contacts.map((c) => ({ user_id: userId, data: c }));
+    const uniqueContacts = dedupeContacts(contacts);
+    if (uniqueContacts.length === 0) return true;
+    const rows = uniqueContacts.map((c) => ({ user_id: userId, data: c }));
     const { error } = await supabase.from('pozdrav_contacts').insert(rows);
     return !error;
   } catch {

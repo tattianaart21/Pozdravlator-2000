@@ -11,6 +11,29 @@ import {
 
 const AppContext = createContext(null);
 
+function normalizeText(value) {
+  return String(value ?? '').trim().toLowerCase();
+}
+
+function getContactDedupKey(contact) {
+  return [
+    normalizeText(contact?.name),
+    normalizeText(contact?.birthDate),
+    normalizeText(contact?.role),
+    normalizeText(contact?.birthYearUnknown ? '1' : ''),
+  ].join('|');
+}
+
+function dedupeContacts(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : []).filter((contact) => {
+    const key = getContactDedupKey(contact);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export function AppProvider({ children }) {
   const { user } = useAuth();
   const userId = user?.id ?? null;
@@ -34,7 +57,7 @@ export function AppProvider({ children }) {
         cloudLoadDone.current = true;
         if (cloudContacts !== null) {
           const list = Array.isArray(cloudContacts) ? cloudContacts : [];
-          setContacts(list.length > 0 ? list : loadContacts(null));
+          setContacts(dedupeContacts(list.length > 0 ? list : loadContacts(null)));
         } else setContacts(loadContactsWithFallback(userId));
         if (cloudCongratulations !== null) {
           const list = Array.isArray(cloudCongratulations) ? cloudCongratulations : [];
@@ -43,7 +66,7 @@ export function AppProvider({ children }) {
       });
     } else {
       cloudLoadDone.current = true;
-      setContacts(loadContactsWithFallback(null));
+      setContacts(dedupeContacts(loadContactsWithFallback(null)));
       setCongratulations(loadCongratulationsWithFallback(null));
     }
     return () => { cancelled = true; };
@@ -63,7 +86,12 @@ export function AppProvider({ children }) {
   const addContact = useCallback((contact) => {
     const id = contact.id ?? uuidv4();
     const newContact = { ...contact, id };
-    setContacts((prev) => [...prev, newContact]);
+    setContacts((prev) => {
+      const dedupKey = getContactDedupKey(newContact);
+      const exists = prev.some((c) => getContactDedupKey(c) === dedupKey);
+      if (exists) return prev.map((c) => (getContactDedupKey(c) === dedupKey ? { ...c, ...newContact, id: c.id } : c));
+      return [...prev, newContact];
+    });
     return id;
   }, []);
 
