@@ -1,11 +1,13 @@
-// Supabase Edge Function: генерация поздравлений через ИИ (OpenAI, DeepSeek, Perplexity и др.)
+// Supabase Edge Function: генерация поздравлений через ИИ (Anthropic Claude и др.)
 // Деплой: supabase functions deploy generate-congratulation
-// DeepSeek (по умолчанию): задай только AI_API_KEY — используем открытый OpenAI-совместимый API DeepSeek.
-// Другие провайдеры: AI_CHAT_URL + AI_API_KEY + AI_MODEL
+// Anthropic Claude (по умолчанию для этого проекта): AI_CHAT_URL + AI_API_KEY + AI_MODEL
+// Другие провайдеры: OpenAI-совместимый endpoint тоже поддерживается
 
-/** DeepSeek — открытый OpenAI-совместимый API, подходит для качественной генерации на русском */
+/** DeepSeek — OpenAI-совместимый API, оставлен как запасной вариант. */
 const DEEPSEEK_CHAT_URL = 'https://api.deepseek.com/v1/chat/completions';
 const DEEPSEEK_MODEL = 'deepseek-chat';
+const ANTHROPIC_VERSION = '2023-06-01';
+const DEFAULT_ANTHROPIC_MODEL = 'claude-3-5-sonnet-20241022';
 
 const TONES: Record<string, string> = {
   touching: 'Трогательный',
@@ -126,6 +128,29 @@ function buildPrompt(
   return parts.join('\n');
 }
 
+function buildAnthropicRequest(prompt: string, model: string) {
+  return {
+    model: model || DEFAULT_ANTHROPIC_MODEL,
+    max_tokens: 1024,
+    temperature: 0.95,
+    system: SYSTEM_MESSAGE,
+    messages: [
+      {
+        role: 'user',
+        content: [{ type: 'text', text: prompt }],
+      },
+    ],
+  };
+}
+
+function parseAnthropicContent(data: any): string {
+  const blocks = Array.isArray(data?.content) ? data.content : [];
+  return blocks
+    .map((block) => (block?.type === 'text' ? String(block.text ?? '') : ''))
+    .join('\n')
+    .trim();
+}
+
 function parseVariants(content: string, toneId?: string): string[] {
   const trimLine = (s: string) => s.replace(/^\d+[.)]\s*/, '').replace(/^["']|["']$/g, '').trim();
 
@@ -168,7 +193,7 @@ Deno.serve(async (req) => {
     const prompt = buildPrompt(dossier, toneId ?? 'touching', occasion, eventInfo);
     const chatUrl = Deno.env.get('AI_CHAT_URL') || DEEPSEEK_CHAT_URL;
     const apiKey = Deno.env.get('AI_API_KEY');
-    const model = Deno.env.get('AI_MODEL') || (chatUrl === DEEPSEEK_CHAT_URL ? DEEPSEEK_MODEL : 'gpt-4o-mini');
+    const model = Deno.env.get('AI_MODEL') || (chatUrl === DEEPSEEK_CHAT_URL ? DEEPSEEK_MODEL : DEFAULT_ANTHROPIC_MODEL);
 
     if (!apiKey) {
       return new Response(
@@ -177,22 +202,32 @@ Deno.serve(async (req) => {
       );
     }
 
-    const body: Record<string, unknown> = {
-      model,
-      messages: [
-        { role: 'system', content: SYSTEM_MESSAGE },
-        { role: 'user', content: prompt },
-      ],
-      max_tokens: 1024,
-      temperature: 0.95,
+    const isAnthropic = chatUrl.includes('api.anthropic.com');
+    const body: Record<string, unknown> = isAnthropic
+      ? buildAnthropicRequest(prompt, model)
+      : {
+          model,
+          messages: [
+            { role: 'system', content: SYSTEM_MESSAGE },
+            { role: 'user', content: prompt },
+          ],
+          max_tokens: 1024,
+          temperature: 0.95,
+        };
+
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
     };
+    if (isAnthropic) {
+      headers['x-api-key'] = apiKey;
+      headers['anthropic-version'] = ANTHROPIC_VERSION;
+    } else {
+      headers.Authorization = `Bearer ${apiKey}`;
+    }
 
     let res = await fetch(chatUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
+      headers,
       body: JSON.stringify(body),
     });
 
@@ -203,7 +238,11 @@ Deno.serve(async (req) => {
         const redirectUrl = location.startsWith('http') ? location : new URL(location, chatUrl).href;
         res = await fetch(redirectUrl, {
           method: 'POST',
-          headers: {
+          headers: isAnthropic ? {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': ANTHROPIC_VERSION,
+          } : {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${apiKey}`,
           },
@@ -217,6 +256,12 @@ Deno.serve(async (req) => {
       const message = res.status === 300
         ? 'Сервис ИИ вернул перенаправление (300). Попробуйте позже или проверьте настройки API.'
         : `AI API error: ${res.status}`;
+      console.error('[generate-congratulation] AI error', {
+        status: res.status,
+        chatUrl,
+        model,
+        body: err,
+      });
       return new Response(
         JSON.stringify({ error: message, details: err }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -224,11 +269,12 @@ Deno.serve(async (req) => {
     }
 
     const data = await res.json();
-    const content =
-      data.choices?.[0]?.message?.content ??
-      data.choices?.[0]?.text ??
-      data.candidates?.[0]?.content?.parts?.[0]?.text ??
-      '';
+    const content = isAnthropic
+      ? parseAnthropicContent(data)
+      : data.choices?.[0]?.message?.content ??
+        data.choices?.[0]?.text ??
+        data.candidates?.[0]?.content?.parts?.[0]?.text ??
+        '';
 
     const toneIdVal = toneId ?? 'touching';
     const texts = parseVariants(content, toneIdVal);

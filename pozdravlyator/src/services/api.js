@@ -177,29 +177,17 @@ export async function generateCongratulation(dossier, toneId, occasion = 'Ден
   const supabase = (await import('./supabase')).supabase;
   if (supabase?.functions) {
     try {
-      if (import.meta.env.DEV) {
-        console.log('[Генерация] Запрос в ИИ (Perplexity), контакт:', dossier?.name);
-      }
       const { data, error } = await supabase.functions.invoke('generate-congratulation', {
         body: { dossier, toneId, occasion, eventInfo },
       });
       if (error) {
-        if (import.meta.env.DEV) {
-          console.warn('[Генерация] ИИ вернул ошибку:', error.message || error);
-        }
         throw error;
       }
       const texts = Array.isArray(data?.texts) ? data.texts : [data?.text ?? 'Поздравляю!'];
-      if (import.meta.env.DEV && texts.length) {
-        console.log('[Генерация] Получено от ИИ вариантов:', texts.length, '— первый:', texts[0]?.slice(0, 50) + '…');
-      }
       return { texts, fromStub: false };
     } catch (err) {
-      if (import.meta.env.DEV) {
-        console.warn('[Генерация] Ошибка ИИ, используем локальную генерацию:', err?.message || err);
-      }
       const stubTexts = buildStubFromDossier(dossier, toneId, occasion);
-      return { texts: stubTexts, fromStub: true, apiError: err?.message || (err?.context?.body?.error) || String(err) };
+      return { texts: stubTexts, fromStub: true };
     }
   } else if (import.meta.env.DEV) {
     console.warn('[Генерация] Supabase не настроен — локальная генерация');

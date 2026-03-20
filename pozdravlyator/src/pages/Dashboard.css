@@ -151,6 +151,17 @@
   box-shadow: var(--shadow-hover);
 }
 
+.dashboard__quick-card--disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.dashboard__quick-card--disabled:hover {
+  border-color: var(--glass-border);
+  transform: none;
+  box-shadow: var(--glass-shadow);
+}
+
 .dashboard__quick-icon {
   display: flex;
   align-items: center;

@@ -14,6 +14,7 @@ export function Saved() {
   const navigate = useNavigate();
   const { congratulations, getContact, deleteCongratulation } = useApp();
   const [copiedId, setCopiedId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
 
   const handleCopy = useCallback(async (item) => {
     try {
@@ -35,7 +36,34 @@ export function Saved() {
   const handleDelete = (item) => {
     if (window.confirm('Удалить это поздравление из сохранённых?')) {
       deleteCongratulation(item.id);
+      setSelectedIds((prev) => prev.filter((id) => id !== item.id));
     }
+  };
+
+  const toggleSelect = (id) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  };
+
+  const handleSelectAll = () => {
+    setSelectedIds(sorted.map((item) => item.id));
+  };
+
+  const handleClearSelection = () => {
+    setSelectedIds([]);
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Удалить выбранные поздравления (${selectedIds.length})?`)) return;
+    selectedIds.forEach((id) => deleteCongratulation(id));
+    setSelectedIds([]);
+  };
+
+  const handleDeleteAll = () => {
+    if (sorted.length === 0) return;
+    if (!window.confirm(`Удалить все сохранённые поздравления (${sorted.length})?`)) return;
+    sorted.forEach((item) => deleteCongratulation(item.id));
+    setSelectedIds([]);
   };
 
   const sorted = useMemo(() => {
@@ -60,16 +88,40 @@ export function Saved() {
           </button>
         </Card>
       ) : (
-        <ul className="history__list">
+        <>
+          <div className="history__bulk-actions">
+            <button type="button" className="history__bulk-btn" onClick={handleSelectAll}>
+              Выбрать все
+            </button>
+            <button type="button" className="history__bulk-btn" onClick={handleClearSelection} disabled={selectedIds.length === 0}>
+              Снять выбор
+            </button>
+            <button type="button" className="history__bulk-btn history__bulk-btn--danger" onClick={handleDeleteSelected} disabled={selectedIds.length === 0}>
+              Удалить выбранные ({selectedIds.length})
+            </button>
+            <button type="button" className="history__bulk-btn history__bulk-btn--danger" onClick={handleDeleteAll}>
+              Удалить все
+            </button>
+          </div>
+          <ul className="history__list">
           {sorted.map((item) => {
             const contact = getContact(item.contactId);
             const dateStr = item.createdAt
               ? format(new Date(item.createdAt), 'd MMMM yyyy, HH:mm', { locale: ru })
               : '—';
+            const selected = selectedIds.includes(item.id);
             return (
               <li key={item.id} className="history__list-item">
                 <Card as="article" className="history__item">
                   <div className="history__item-meta">
+                    <label className="history__select">
+                      <input
+                        type="checkbox"
+                        checked={selected}
+                        onChange={() => toggleSelect(item.id)}
+                        aria-label="Выбрать поздравление"
+                      />
+                    </label>
                     <span className="history__item-name">{contact?.name ?? 'Неизвестный контакт'}</span>
                     <span className="history__item-date">{dateStr}</span>
                     <div className="history__item-actions">
@@ -105,7 +157,8 @@ export function Saved() {
               </li>
             );
           })}
-        </ul>
+          </ul>
+        </>
       )}
     </div>
   );

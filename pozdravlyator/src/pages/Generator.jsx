@@ -32,7 +32,6 @@ export function Generator() {
   const [saved, setSaved] = useState(false);
   const [imageUrl, setImageUrl] = useState(null);
   const [copyFeedback, setCopyFeedback] = useState(false);
-  const [apiError, setApiError] = useState(null);
 
   const contact = contactId ? getContact(contactId) : null;
   const fromDate = new Date();
@@ -108,7 +107,6 @@ export function Generator() {
     setLoading(true);
     setVariants([]);
     setSelectedText('');
-    setApiError(null);
     const eventInfo =
       eventWithinWeek != null
         ? {
@@ -121,7 +119,6 @@ export function Generator() {
       const texts = Array.isArray(result?.texts) ? result.texts : (result ?? []);
       setVariants(texts);
       if (texts.length) setSelectedText(texts[0]);
-      if (result?.fromStub && result?.apiError) setApiError(result.apiError);
     } finally {
       setLoading(false);
     }
@@ -220,11 +217,6 @@ export function Generator() {
       {variants.length > 0 && (
         <Card className="generator__card">
           <h2 className="generator__variants-title">Варианты</h2>
-          {apiError && (
-            <p className="generator__api-error" role="alert">
-              ИИ временно недоступен ({apiError}). Показаны локальные варианты.
-            </p>
-          )}
           <div className="generator__variants">
             {variants.map((text, i) => (
               <button

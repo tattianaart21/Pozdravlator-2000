@@ -42,6 +42,32 @@
   gap: var(--space-m);
 }
 
+.history__bulk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-s);
+  margin-bottom: var(--space-m);
+}
+
+.history__bulk-btn {
+  padding: var(--space-xs) var(--space-s);
+  font-size: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.history__bulk-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.history__bulk-btn--danger {
+  color: var(--color-error, #c62828);
+}
+
 .history__list-item {
   animation: historyItemIn 0.35s ease backwards;
 }
@@ -76,6 +102,12 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-xs);
+}
+
+.history__select {
+  display: inline-flex;
+  align-items: center;
+  margin-right: var(--space-xs);
 }
 
 .history__item-actions {

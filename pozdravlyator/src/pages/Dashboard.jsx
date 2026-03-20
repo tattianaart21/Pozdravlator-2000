@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Users, Sparkles, Bookmark, Clock, ArrowRight, Image, Trophy } from 'lucide-react';
+import { ArrowRight, Image, Trophy, Video, Music2 } from 'lucide-react';
 import { useApp } from '../store/AppContext';
 import { getUpcomingEvents, formatDate } from '../utils/dateUtils';
 import { Card } from '../components/Card';
@@ -18,13 +18,10 @@ export function Dashboard() {
   }).length;
 
   const quickActions = [
-    { label: 'Календарь', hint: 'Все события', Icon: Calendar, path: '/calendar' },
-    { label: 'Контакты', hint: `${contacts.length} в досье`, Icon: Users, path: '/contacts' },
-    { label: 'Генератор', hint: 'Новое поздравление', Icon: Sparkles, path: '/generate' },
     { label: 'Открытка за 60 сек', hint: 'Текст + картинка', Icon: Image, path: '/quick-card', chip: 'Тест' },
-    { label: 'Сохранённое', hint: `${congratulations.length} сохранено`, Icon: Bookmark, path: '/saved' },
-    { label: 'История', hint: 'Прошедшие события', Icon: Clock, path: '/history' },
     { label: 'Челленджи', hint: 'Неделя внимания', Icon: Trophy, path: '/challenges' },
+    { label: 'Генерация видеопоздравления', hint: 'Скоро появится', Icon: Video, disabled: true, chip: 'Скоро' },
+    { label: 'Генерация песни', hint: 'Скоро появится', Icon: Music2, disabled: true, chip: 'Скоро' },
   ];
 
   return (
@@ -81,12 +78,15 @@ export function Dashboard() {
       <section className="dashboard__quick">
         <h2 className="dashboard__section-title">Быстрые действия</h2>
         <div className="dashboard__quick-grid dashboard__quick-grid--chaotic">
-          {quickActions.map(({ label, hint, Icon, path, chip }, i) => (
+          {quickActions.map(({ label, hint, Icon, path, chip, disabled }, i) => (
             <button
-              key={path}
+              key={path ?? label}
               type="button"
-              className="dashboard__quick-card dashboard__quick-card--glass"
-              onClick={() => navigate(path)}
+              className={`dashboard__quick-card dashboard__quick-card--glass ${disabled ? 'dashboard__quick-card--disabled' : ''}`}
+              onClick={() => {
+                if (!disabled && path) navigate(path);
+              }}
+              disabled={Boolean(disabled)}
               style={{ animationDelay: `${0.05 + i * 0.08}s` }}
             >
               <span className="dashboard__quick-icon">
