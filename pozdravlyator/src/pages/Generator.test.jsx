@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { AppProvider } from '../store/AppContext';
@@ -7,9 +7,9 @@ import { Generator } from './Generator';
 
 vi.mock('../store/AuthContext', () => ({
   useAuth: () => ({
-    user: { id: 'test-user' },
+    user: null,
     loading: false,
-    isConfigured: true,
+    isConfigured: false,
     signOut: () => {},
     signIn: () => {},
     signUp: () => {},
@@ -72,12 +72,14 @@ describe('Страница /generate (Генератор)', () => {
       role: 'friend',
       hobbies: 'книги',
     };
-    localStorage.setItem('pozdrav_contacts_test-user', JSON.stringify([contact]));
     localStorage.setItem('pozdrav_contacts_local', JSON.stringify([contact]));
 
     renderGenerator();
 
     const contactSelect = document.querySelector('select');
+    await waitFor(() => {
+      expect(contactSelect?.querySelector('option[value="c1"]')).toBeTruthy();
+    });
     await userEvent.selectOptions(contactSelect, 'c1');
 
     expect(screen.getByRole('button', { name: /Сгенерировать 5 вариантов/i })).toBeInTheDocument();
@@ -94,12 +96,14 @@ describe('Страница /generate (Генератор)', () => {
       role: 'friend',
       hobbies: 'книги',
     };
-    localStorage.setItem('pozdrav_contacts_test-user', JSON.stringify([contact]));
     localStorage.setItem('pozdrav_contacts_local', JSON.stringify([contact]));
 
     renderGenerator();
 
     const contactSelect = document.querySelector('select');
+    await waitFor(() => {
+      expect(contactSelect?.querySelector('option[value="c1"]')).toBeTruthy();
+    });
     await userEvent.selectOptions(contactSelect, 'c1');
 
     const generateBtn = screen.getByRole('button', { name: /Сгенерировать 5 вариантов/i });

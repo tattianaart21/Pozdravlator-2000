@@ -23,6 +23,11 @@
   word-break: break-all;
 }
 
+.profile__email--hint {
+  word-break: normal;
+  line-height: 1.45;
+}
+
 .profile__group {
   display: flex;
   flex-direction: column;

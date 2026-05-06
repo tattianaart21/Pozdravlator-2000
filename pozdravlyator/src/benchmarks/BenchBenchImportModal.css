@@ -1,0 +1,94 @@
+.bench-import-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.bench-import-dialog {
+  width: min(440px, 100%);
+  background: #fff;
+  border-radius: 14px;
+  padding: 22px 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.bench-import-dialog__title {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bench-import-dialog__hint {
+  margin: 0 0 16px;
+  font-size: 0.85rem;
+  color: #52525b;
+  line-height: 1.45;
+}
+
+.bench-import-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3f3f46;
+}
+
+.bench-import-field select {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  font-size: 0.9rem;
+}
+
+.bench-import-dialog__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.bench-import-btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fafafa;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.bench-import-btn--primary {
+  background: #18181b;
+  color: #fafafa;
+  border-color: #18181b;
+}
+
+.bench-import-btn--primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bench-import-file {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bench-import-dialog__status {
+  margin: 14px 0 0;
+  font-size: 0.84rem;
+  color: #166534;
+  line-height: 1.4;
+}

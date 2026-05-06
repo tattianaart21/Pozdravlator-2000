@@ -1,13 +1,10 @@
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Users, Bookmark, Award, TrendingUp } from 'lucide-react';
-import { useAuth } from '../store/AuthContext';
 import { useTheme } from '../store/ThemeContext';
 import { usePalette } from '../store/PaletteContext';
 import { useSettings } from '../store/SettingsContext';
 import { useApp } from '../store/AppContext';
 import { Card } from '../components/Card';
-import { Button } from '../components/Button';
 import './Profile.css';
 
 const DOSSIER_FIELDS = ['name', 'birthDate', 'role', 'hobbies', 'dreams', 'jokes', 'memories', 'tastes'];
@@ -22,8 +19,6 @@ function dossierCompletionPercent(contact) {
 }
 
 export function Profile() {
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
   const { themeId, setThemeId, themes } = useTheme();
   const { paletteId, setPaletteId, palettes } = usePalette();
   const { backgroundOn, setBackgroundOn } = useSettings();
@@ -45,11 +40,6 @@ export function Profile() {
     if (savedCount >= 3) badges.push({ id: 'saved', label: '3+ сохранённых', icon: Bookmark });
     return { total, avgCompletion, fullDossier, savedCount, badges };
   }, [contacts, congratulations]);
-
-  const handleSignOut = () => {
-    signOut();
-    navigate('/login', { replace: true });
-  };
 
   return (
     <div className="page profile">
@@ -90,9 +80,7 @@ export function Profile() {
       </Card>
 
       <Card className="profile__card profile__card--glass">
-        <p className="profile__email" title={user?.email}>
-          {user?.email ?? '—'}
-        </p>
+        <p className="profile__email profile__email--hint">Данные только в этом браузере (вход отключён).</p>
 
         <div className="profile__group">
           <label className="profile__label">Тема</label>
@@ -136,9 +124,6 @@ export function Profile() {
           </button>
         </div>
 
-        <Button variant="secondary" className="profile__logout" onClick={handleSignOut}>
-          Выйти
-        </Button>
       </Card>
     </div>
   );

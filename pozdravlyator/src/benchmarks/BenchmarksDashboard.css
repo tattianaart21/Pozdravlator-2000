@@ -1,0 +1,180 @@
+.bench-dash {
+  padding-bottom: 40px;
+}
+
+.bench-dash__hero {
+  margin-bottom: 22px;
+}
+
+.bench-dash__hero--compact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  margin-bottom: 16px;
+}
+
+.bench-dash__hero--compact .bench-dash__h1 {
+  margin: 0;
+}
+
+.bench-dash__h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  font-weight: 800;
+}
+
+.bench-dash__lead {
+  margin: 0 0 16px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: #3f3f46;
+  max-width: 72ch;
+}
+
+.bench-dash__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.bench-dash__filter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #52525b;
+}
+
+.bench-dash__filter select {
+  min-width: 220px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #d4d4d8;
+  font-size: 0.8rem;
+}
+
+.bench-dash__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 9px 14px;
+  border-radius: 10px;
+  border: 1px solid #d4d4d8;
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: none;
+  color: #18181b;
+  cursor: pointer;
+}
+
+.bench-dash__btn--primary {
+  background: #18181b;
+  color: #fafafa;
+  border-color: #18181b;
+}
+
+.bench-dash__cards {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 700px) {
+  .bench-dash__cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.bench-dash__card {
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid #e4e4e7;
+  background: linear-gradient(165deg, #fafafa, #fff);
+}
+
+.bench-dash__card--biz {
+  border-color: #c4f542;
+  background: linear-gradient(165deg, rgba(196, 245, 66, 0.12), #fff);
+}
+
+.bench-dash__card--muted {
+  background: #fafafa;
+}
+
+.bench-dash__card-icon {
+  color: #6366f1;
+  margin-bottom: 8px;
+}
+
+.bench-dash__card--biz .bench-dash__card-icon {
+  color: #15803d;
+}
+
+.bench-dash__card-title {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.bench-dash__card-metric {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.bench-dash__card-sub {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #71717a;
+}
+
+.bench-dash__link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.bench-dash__link:hover {
+  text-decoration: underline;
+}
+
+.bench-dash__h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.bench-dash__table-wrap {
+  overflow-x: auto;
+}
+
+.bench-dash__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.bench-dash__table th,
+.bench-dash__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e4e4e7;
+  text-align: left;
+}
+
+.bench-dash__table th {
+  background: #18181b;
+  color: #fafafa;
+  font-weight: 600;
+}
+
+.bench-dash__mono {
+  font-family: ui-monospace, monospace;
+  font-size: 0.72rem;
+  max-width: 280px;
+}

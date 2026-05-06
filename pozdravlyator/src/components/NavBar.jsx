@@ -33,7 +33,7 @@ export function NavBar() {
         <NavLink
           to="/profile"
           className={({ isActive }) => `navbar__link navbar__link--profile ${isActive ? 'navbar__link--active' : ''}`}
-          title="Профиль: тема, палитра, выход"
+          title="Профиль: тема и оформление"
         >
           <User size={20} strokeWidth={2} aria-hidden />
           <span className="navbar__label">Профиль</span>

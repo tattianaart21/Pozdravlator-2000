@@ -1,0 +1,616 @@
+/* Админка бенчмарков — стиль как у внутренних панелей (тёмная шапка таблицы, лайм-акцент) */
+.bench-admin-page {
+  --bench-bg: #f4f5f7;
+  --bench-surface: #ffffff;
+  --bench-header: #1a1a1e;
+  --bench-border: #e2e4e9;
+  --bench-text: #1a1a1e;
+  --bench-muted: #6b7280;
+  --bench-lime: #c4f542;
+  --bench-lime-hover: #b8e830;
+  --bench-row-alt: #fafbfc;
+  --bench-radius: 8px;
+  font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+  color: var(--bench-text);
+  min-height: calc(100vh - var(--header-height, 56px) - 100px);
+}
+
+.bench-admin-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--space-m, 16px);
+  font-size: 0.875rem;
+  color: var(--bench-muted);
+  text-decoration: none;
+}
+.bench-admin-page__back:hover {
+  color: var(--bench-text);
+}
+
+.bench-admin-page__shell {
+  background: var(--bench-surface);
+  border-radius: var(--bench-radius);
+  border: 1px solid var(--bench-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.bench-admin-page__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-m, 16px);
+  padding: var(--space-m, 16px) var(--space-l, 24px);
+  border-bottom: 1px solid var(--bench-border);
+  background: var(--bench-surface);
+}
+
+.bench-admin-page__tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--bench-border);
+  margin-bottom: -1px;
+}
+
+.bench-admin-page__tab {
+  padding: 10px 18px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bench-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.bench-admin-page__tab:hover {
+  color: var(--bench-text);
+}
+.bench-admin-page__tab--active {
+  color: var(--bench-text);
+  border-bottom-color: var(--bench-lime);
+}
+
+.bench-admin-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.bench-admin-page__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--bench-muted);
+  user-select: none;
+}
+.bench-admin-page__toggle input {
+  width: 36px;
+  height: 20px;
+  accent-color: var(--bench-text);
+  cursor: pointer;
+}
+
+.bench-admin-page__dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.bench-admin-page__date-input {
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--bench-border);
+  border-radius: 6px;
+  min-width: 140px;
+  color: var(--bench-text);
+  background: var(--bench-surface);
+}
+.bench-admin-page__date-input:focus {
+  outline: 2px solid var(--bench-lime);
+  outline-offset: 0;
+}
+
+.bench-admin-page__search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--bench-border);
+  border-radius: 6px;
+  min-width: 200px;
+  flex: 1 1 180px;
+  max-width: 280px;
+}
+.bench-admin-page__search input {
+  flex: 1;
+  border: none;
+  font-size: 0.8125rem;
+  min-width: 0;
+  background: transparent;
+  color: var(--bench-text);
+}
+.bench-admin-page__search input:focus {
+  outline: none;
+}
+.bench-admin-page__search input::placeholder {
+  color: #9ca3af;
+}
+
+.bench-admin-page__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--bench-border);
+  border-radius: 8px;
+  background: var(--bench-surface);
+  color: var(--bench-text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.bench-admin-page__icon-btn:hover {
+  background: var(--bench-row-alt);
+  border-color: #d1d5db;
+}
+
+.bench-admin-page__fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bench-lime);
+  color: var(--bench-header);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(196, 245, 66, 0.45);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.bench-admin-page__fab:hover {
+  background: var(--bench-lime-hover);
+  transform: scale(1.04);
+}
+
+.bench-admin-page__filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px var(--space-l, 24px);
+  border-bottom: 1px solid var(--bench-border);
+  background: #fafbfc;
+}
+.bench-admin-page__select {
+  padding: 8px 10px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--bench-border);
+  border-radius: 6px;
+  background: var(--bench-surface);
+  color: var(--bench-text);
+  min-width: 160px;
+}
+
+.bench-admin-page__table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bench-admin-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.bench-admin-page__table thead th {
+  background: var(--bench-header);
+  color: #f3f4f6;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 14px;
+  white-space: nowrap;
+  border-bottom: 1px solid #2d2d32;
+}
+.bench-admin-page__table thead th .th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bench-admin-page__table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--bench-border);
+  vertical-align: middle;
+  max-width: 220px;
+}
+
+.bench-admin-page__task-ques {
+  max-width: 280px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  color: var(--bench-text);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bench-admin-page__table tbody tr:nth-child(even) {
+  background: var(--bench-row-alt);
+}
+.bench-admin-page__table tbody tr:hover td {
+  background: rgba(196, 245, 66, 0.08);
+}
+.bench-admin-page__table tbody tr.bench-admin-page__row--nav {
+  cursor: pointer;
+}
+.bench-admin-page__table tbody tr.bench-admin-page__row--selected td {
+  background: rgba(196, 245, 66, 0.35);
+}
+.bench-admin-page__table tbody tr.bench-admin-page__row--selected:hover td {
+  background: rgba(196, 245, 66, 0.42);
+}
+
+.bench-admin-page__mono {
+  font-family: ui-monospace, 'Cascadia Code', monospace;
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
+.bench-admin-page__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.bench-admin-page__badge--ok {
+  background: #d1fae5;
+  color: #065f46;
+}
+.bench-admin-page__badge--fail {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.bench-admin-page__badge--partial {
+  background: #fef3c7;
+  color: #92400e;
+}
+.bench-admin-page__badge--run {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.bench-admin-page__badge--pause {
+  background: #e4e4e7;
+  color: #3f3f46;
+}
+
+.bench-admin-page__table-wrap--wide {
+  overflow-x: auto;
+}
+
+.bench-admin-page__table--runs-metrics {
+  font-size: 0.75rem;
+}
+
+.bench-admin-page__table--runs-metrics th,
+.bench-admin-page__table--runs-metrics td {
+  white-space: nowrap;
+}
+
+.bench-admin-page__table--runs-metrics th:nth-child(5),
+.bench-admin-page__table--runs-metrics td:nth-child(5) {
+  white-space: normal;
+  max-width: 140px;
+}
+
+.bench-admin-page__link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+.bench-admin-page__link:hover {
+  text-decoration: underline;
+}
+
+.bench-admin-page__trace-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bench-admin-page__trace-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: #0c0d10;
+  background: linear-gradient(135deg, #c4f542, #a3e635);
+  border: none;
+  box-shadow: 0 2px 8px rgba(196, 245, 66, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.bench-admin-page__trace-open:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(196, 245, 66, 0.45);
+}
+
+.bench-admin-page__trace-open:active {
+  transform: translateY(0);
+}
+
+.bench-admin-page__trace-external {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  text-decoration: none;
+  color: var(--bench-muted);
+  border: 1px solid var(--bench-border);
+  background: var(--bench-surface);
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.bench-admin-page__trace-external:hover {
+  color: var(--bench-text);
+  border-color: #c4f542;
+  background: rgba(196, 245, 66, 0.12);
+}
+
+.bench-admin-page__copy {
+  display: inline-flex;
+  padding: 4px;
+  margin-left: 4px;
+  border: none;
+  background: transparent;
+  color: var(--bench-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+.bench-admin-page__copy:hover {
+  color: var(--bench-text);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.bench-admin-page__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px var(--space-l, 24px);
+  border-top: 1px solid var(--bench-border);
+  font-size: 0.8125rem;
+  color: var(--bench-muted);
+  background: #fafbfc;
+}
+
+.bench-admin-page__pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bench-admin-page__pagination button {
+  padding: 6px 14px;
+  font-size: 0.8125rem;
+  border: 1px solid var(--bench-border);
+  border-radius: 6px;
+  background: var(--bench-surface);
+  cursor: pointer;
+  color: var(--bench-text);
+}
+.bench-admin-page__pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bench-admin-page__page-size {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bench-admin-page__page-size select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--bench-border);
+  font-size: 0.8125rem;
+  background: var(--bench-surface);
+}
+
+.bench-admin-page__toast {
+  position: fixed;
+  bottom: 88px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  background: var(--bench-header);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  animation: bench-toast-in 0.2s ease;
+}
+@keyframes bench-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.bench-admin-page__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: var(--space-m, 16px);
+}
+.bench-admin-page__modal {
+  background: var(--bench-surface);
+  border-radius: var(--bench-radius);
+  max-width: 480px;
+  width: 100%;
+  padding: var(--space-l, 24px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.bench-admin-page__modal--run {
+  max-width: 560px;
+}
+
+.bench-admin-page__modal-hint {
+  font-size: 0.8125rem;
+  color: var(--bench-muted);
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.bench-admin-page__modal-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bench-muted);
+  margin: 16px 0 8px;
+}
+
+.bench-admin-page__modal-section-title:first-of-type {
+  margin-top: 0;
+}
+
+.bench-admin-page__bench-all {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.bench-admin-page__bench-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  padding-right: 4px;
+}
+
+.bench-admin-page__bench-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--bench-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.bench-admin-page__bench-row:hover {
+  border-color: #c4f542;
+  background: rgba(196, 245, 66, 0.06);
+}
+
+.bench-admin-page__bench-row input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: #1a1a1e;
+  flex-shrink: 0;
+}
+
+.bench-admin-page__bench-label {
+  flex: 1;
+  min-width: 0;
+}
+
+.bench-admin-page__bench-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: block;
+}
+
+.bench-admin-page__bench-desc {
+  font-size: 0.75rem;
+  color: var(--bench-muted);
+  margin-top: 4px;
+  line-height: 1.35;
+}
+
+.bench-admin-page__ci-note {
+  font-size: 0.75rem;
+  color: var(--bench-muted);
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #fafbfc;
+  border-radius: 8px;
+  border: 1px dashed var(--bench-border);
+}
+
+.bench-admin-page__inline-code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.7rem;
+  padding: 1px 5px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+}
+.bench-admin-page__modal h2 {
+  margin: 0 0 12px;
+  font-size: 1.125rem;
+}
+.bench-admin-page__modal p {
+  margin: 0 0 var(--space-m, 16px);
+  font-size: 0.875rem;
+  color: var(--bench-muted);
+  line-height: 1.5;
+}
+.bench-admin-page__modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.bench-admin-page__modal-actions button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: 1px solid var(--bench-border);
+  background: var(--bench-surface);
+}
+.bench-admin-page__modal-actions button.primary {
+  background: var(--bench-header);
+  color: #fff;
+  border-color: var(--bench-header);
+}
