@@ -8,8 +8,27 @@
   gap: var(--space-m);
 }
 
+.contacts-list__header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-m);
+}
+
 .contacts-list__add {
   align-self: flex-start;
+}
+
+.contacts-list__bench-link {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-accent, #2563eb);
+  text-decoration: none;
+  align-self: center;
+}
+
+.contacts-list__bench-link:hover {
+  text-decoration: underline;
 }
 
 .contacts-list__empty {

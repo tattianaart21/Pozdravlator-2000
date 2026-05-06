@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useApp } from '../store/AppContext';
 import { formatDate } from '../utils/dateUtils';
 import { getRoleById } from '../constants/roles';
+import { getBenchmarksRunsHref } from '../utils/benchmarksUrl';
 import { Card } from '../components/Card';
 import { Button } from '../components/Button';
 import './ContactsList.css';
@@ -20,9 +21,19 @@ export function ContactsList() {
       <header className="page__header contacts-list__header">
         <h1 className="page__title">Контакты</h1>
         <p className="page__subtitle">Список добавленных контактов и досье</p>
-        <Button as={Link} to="/contacts/add" variant="primary" className="contacts-list__add">
-          Добавить контакт
-        </Button>
+        <div className="contacts-list__header-actions">
+          <Button as={Link} to="/contacts/add" variant="primary" className="contacts-list__add">
+            Добавить контакт
+          </Button>
+          <a
+            className="contacts-list__bench-link"
+            href={getBenchmarksRunsHref()}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Бенчмарки — запуски
+          </a>
+        </div>
       </header>
 
       {sorted.length === 0 ? (

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Play, Plus, Trash2 } from 'lucide-react';
+import { ChevronRight, ChevronUp, Frown, Play, Plus, Smile, Trash2 } from 'lucide-react';
 import {
   activeTasks,
   addTask,
@@ -62,7 +62,7 @@ function TaskModal({ open, title, initial, onSave, onClose }) {
 export function BenchmarksBenchesPage() {
   const { openLaunchWithSelectedTasks } = useBenchmarksUi();
   const [benches, setBenches] = useState(() => loadBenches());
-  const [expanded, setExpanded] = useState(() => new Set(loadBenches().map((b) => b.id)));
+  const [expanded, setExpanded] = useState(() => new Set());
   const [selectedTasks, setSelectedTasks] = useState(() => ({}));
   const [showArchived, setShowArchived] = useState(false);
   const [taskModal, setTaskModal] = useState(null);
@@ -186,10 +186,10 @@ export function BenchmarksBenchesPage() {
           const tasks = showArchived ? bench.tasks : activeTasks(bench);
           const archivedCount = bench.tasks.filter((t) => t.archived).length;
           return (
-            <li key={bench.id} className="bench-benches-card">
+            <li key={bench.id} className={`bench-benches-card ${isOpen ? 'bench-benches-card--open' : ''}`}>
               <div className="bench-benches-card__head">
                 <button type="button" className="bench-benches-card__expand" onClick={() => toggleExpand(bench.id)} aria-expanded={isOpen}>
-                  {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                  {isOpen ? <ChevronUp size={18} aria-hidden /> : <ChevronRight size={18} aria-hidden />}
                 </button>
                 <div className="bench-benches-card__title-block">
                   <input
@@ -208,7 +208,7 @@ export function BenchmarksBenchesPage() {
                 </div>
                 <button
                   type="button"
-                  className="bench-benches-btn bench-benches-btn--compact"
+                  className="bench-benches-btn bench-benches-btn--compact bench-benches-btn--on-dark"
                   title="Запустить все активные таски этого бенча"
                   disabled={activeTasks(bench).length === 0}
                   onClick={() => launchWholeBench(bench)}
@@ -217,7 +217,7 @@ export function BenchmarksBenchesPage() {
                 </button>
                 <button
                   type="button"
-                  className="bench-benches-icon-btn"
+                  className="bench-benches-icon-btn bench-benches-icon-btn--on-dark"
                   title="Удалить бенч"
                   onClick={() => {
                     if (window.confirm('Удалить бенч и все его задачи?')) {
@@ -232,47 +232,36 @@ export function BenchmarksBenchesPage() {
 
               {isOpen ? (
                 <div className="bench-benches-card__body">
-                  {(() => {
-                    const act = activeTasks(bench);
-                    const allSel = act.length > 0 && act.every((t) => selectedTasks[`${bench.id}:${t.id}`]);
-                    const someSel = act.some((t) => selectedTasks[`${bench.id}:${t.id}`]);
-                    return act.length > 0 ? (
-                      <label className="bench-benches-select-all">
-                        <input
-                          type="checkbox"
-                          checked={allSel}
-                          ref={(el) => {
-                            if (el) el.indeterminate = someSel && !allSel;
-                          }}
-                          onChange={(e) => selectAllActiveInBench(bench.id, e.target.checked)}
-                        />
-                        Выбрать все активные таски этого бенча
-                      </label>
-                    ) : null;
-                  })()}
-                  <div className="bench-benches-table-wrap">
-                    <table className="bench-benches-table">
-                      <thead>
-                        <tr>
-                          <th className="bench-benches-table__check" />
-                          <th>web_name</th>
-                          <th>id</th>
-                          <th>ques</th>
-                          <th>web</th>
-                          <th />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tasks.length === 0 ? (
-                          <tr>
-                            <td colSpan={6} className="bench-benches-table__empty">
-                              Нет задач. Добавьте первую.
-                            </td>
-                          </tr>
-                        ) : (
-                          tasks.map((t) => (
-                            <tr key={t.id} className={t.archived ? 'bench-benches-table__archived' : ''}>
-                              <td>
+                  <div className="bench-benches-nest">
+                    <div className="bench-benches-nest__head">
+                      <h3 className="bench-benches-nest__title">Задачи бенча ({tasks.length})</h3>
+                      {(() => {
+                        const act = activeTasks(bench);
+                        const allSel = act.length > 0 && act.every((t) => selectedTasks[`${bench.id}:${t.id}`]);
+                        const someSel = act.some((t) => selectedTasks[`${bench.id}:${t.id}`]);
+                        return act.length > 0 ? (
+                          <label className="bench-benches-select-all bench-benches-select-all--nest">
+                            <input
+                              type="checkbox"
+                              checked={allSel}
+                              ref={(el) => {
+                                if (el) el.indeterminate = someSel && !allSel;
+                              }}
+                              onChange={(e) => selectAllActiveInBench(bench.id, e.target.checked)}
+                            />
+                            Выбрать все активные
+                          </label>
+                        ) : null;
+                      })()}
+                    </div>
+                    <ul className="bench-benches-task-list">
+                      {tasks.length === 0 ? (
+                        <li className="bench-benches-task-empty">Нет задач. Добавьте первую.</li>
+                      ) : (
+                        tasks.map((t) => (
+                          <li key={t.id} className={`bench-benches-task-card ${t.archived ? 'bench-benches-task-card--archived' : ''}`}>
+                            <div className="bench-benches-task-card__inner">
+                              <div className="bench-benches-task-card__check">
                                 {!t.archived ? (
                                   <input
                                     type="checkbox"
@@ -283,20 +272,48 @@ export function BenchmarksBenchesPage() {
                                 ) : (
                                   <span className="bench-benches-muted">—</span>
                                 )}
-                              </td>
-                              <td>{t.web_name}</td>
-                              <td className="bench-benches-mono">{t.task_id}</td>
-                              <td className="bench-benches-ques">{t.ques}</td>
-                              <td className="bench-benches-mono">
-                                {t.web ? (
-                                  <a href={t.web} target="_blank" rel="noreferrer">
-                                    {t.web.length > 40 ? `${t.web.slice(0, 40)}…` : t.web}
-                                  </a>
-                                ) : (
-                                  '—'
-                                )}
-                              </td>
-                              <td className="bench-benches-actions">
+                              </div>
+                              <div className="bench-benches-task-card__grid">
+                                <div className="bench-benches-kv">
+                                  <span className="bench-benches-kv__label">web_name</span>
+                                  <span className="bench-benches-kv__value">{t.web_name || '—'}</span>
+                                </div>
+                                <div className="bench-benches-kv">
+                                  <span className="bench-benches-kv__label">id (task_id)</span>
+                                  <span className="bench-benches-kv__value bench-benches-kv__value--mono">{t.task_id}</span>
+                                </div>
+                                <div className="bench-benches-kv">
+                                  <span className="bench-benches-kv__label">статус</span>
+                                  <span className={t.archived ? 'bench-benches-pill bench-benches-pill--fail' : 'bench-benches-pill bench-benches-pill--ok'}>
+                                    {t.archived ? (
+                                      <>
+                                        <Frown size={14} strokeWidth={2} aria-hidden /> В архиве
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Smile size={14} strokeWidth={2} aria-hidden /> Активна
+                                      </>
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="bench-benches-kv bench-benches-kv--wide">
+                                  <span className="bench-benches-kv__label">ques</span>
+                                  <span className="bench-benches-kv__value">{t.ques || '—'}</span>
+                                </div>
+                                <div className="bench-benches-kv bench-benches-kv--wide">
+                                  <span className="bench-benches-kv__label">web</span>
+                                  <span className="bench-benches-kv__value bench-benches-kv__value--mono">
+                                    {t.web ? (
+                                      <a href={t.web} target="_blank" rel="noreferrer" className="bench-benches-task-link">
+                                        {t.web.length > 56 ? `${t.web.slice(0, 56)}…` : t.web}
+                                      </a>
+                                    ) : (
+                                      '—'
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="bench-benches-task-card__actions">
                                 <button
                                   type="button"
                                   className="bench-benches-link-btn"
@@ -320,16 +337,16 @@ export function BenchmarksBenchesPage() {
                                     Восстановить
                                   </button>
                                 )}
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
+                              </div>
+                            </div>
+                          </li>
+                        ))
+                      )}
+                    </ul>
                   </div>
                   <button
                     type="button"
-                    className="bench-benches-btn"
+                    className="bench-benches-btn bench-benches-btn--after-nest"
                     onClick={() =>
                       setTaskModal({
                         benchId: bench.id,

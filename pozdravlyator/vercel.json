@@ -2,6 +2,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/benchmarks.html", "destination": "/benchmarks.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
